@@ -18,44 +18,45 @@ let getNewId () =
 type Clip =
     | Frame of Id * Point * Shapes
     | Clip of Id * Point * Clip list
-    | Movie of Id * LazyList<Point * Clip>
+    | Movie of Id * LazyList<Point> * Clip
     with member x.GetFrame() = match x with
                                | Frame(id, point, frame) -> Some(point, frame)
                                | Clip(id, point, clips) ->
                                     match clips |> List.choose (fun c -> c.GetFrame()) with
                                     | [] -> None
                                     | frames -> Some(frames |> List.reduce combinePlacedElements)
-                               | Movie(id, frames) -> frames.Head |> Option.bind (fun ((p, c), _) -> c.GetFrame() |> Option.map(fun (p2, f) -> p + p2, f))
+                               | Movie(id, positions, clip) -> positions.Head |> Option.bind (fun (p, _) -> clip.GetFrame() |> Option.map(fun (p2, f) -> p + p2, f))
 
          member x.GetId() = match x with
                             | Frame(id, _, _)
                             | Clip(id, _, _)
-                            | Movie(id, _) -> id
+                            | Movie(id, _, _) -> id
                                                  
          member x.GetNext() =
-                              //printfn "GetNext() on id %A" (x.GetId())
+                              printfn "GetNext() on id %A" (x.GetId())
                               match x with
                               | Frame(_) -> Some(x)
                               | Clip(id, point, clips) ->
                                     match clips |> List.choose (fun c -> c.GetNext()) with
                                     | [] -> None
                                     | nextClips -> Some(Clip(getNewId(), point, nextClips))
-                              | Movie(id, frames) -> frames.Head
-                                                     |> Option.map (fun(_, tail) -> eval tail)
-                                                     |> Option.map (fun tail ->
-                                                        let nextFrames = tail |> LazyList.choose (fun (p, c) -> c.GetNext() |> Option.map (fun c' -> p, c'))
-                                                        Movie(getNewId(), nextFrames))
+                              | Movie(id, positions, clip) -> positions.Head
+                                                              |> Option.map (fun(_, tail) -> eval tail)
+                                                              |> Option.bind (fun tail ->
+                                                                  clip.GetNext()
+                                                                  |> Option.map(fun next ->
+                                                                      Movie(getNewId(), tail, next)))
          member x.RelativeTo(p: Point) = match x with
                                          | Frame(id, p2, f) -> Frame(getNewId(), p2 - p, f)
                                          | Clip(id, p2, clips) -> Clip(getNewId(), p2 - p, clips)
-                                         | Movie(id, s) -> Movie(getNewId(), s |> LazyList.map (fun (p2, c) -> p2-p, c))
+                                         | Movie(id, ps, clip) -> Movie(getNewId(), ps |> LazyList.map (fun (p2) -> p2-p), clip)
 
 let rec combineClips c1 c2 =
     match c1, c2 with
     | Frame(_, p1, f1), Frame(_, p2, f2) -> combinePlacedElements (p1, f1) (p2, f2) |> (fun (p, ss) -> Frame(getNewId(), p, ss))
-    | Movie(_, _), Frame(_, _, _)
-    | Frame(_, _, _), Movie(_, _)
-    | Movie(_, _), Movie(_, _) -> Clip(getNewId(), Point.Origin, [c1; c2])
+    | Movie(_, _, _), Frame(_, _, _)
+    | Frame(_, _, _), Movie(_, _, _)
+    | Movie(_, _, _), Movie(_, _, _) -> Clip(getNewId(), Point.Origin, [c1; c2])
     | Clip(_, p, clips), c
     | c , Clip(_, p, clips) ->  Clip(getNewId(), p, c.RelativeTo(p) :: clips)
 

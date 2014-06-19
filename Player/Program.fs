@@ -6,7 +6,7 @@ open LazyList
 open Shapes
 open Cartoon
 
-let newMovie m = Movie(getNewId(), eval m)
+let newMovie positions c = Movie(getNewId(), eval positions, c)
 
 //let scene = shapes { yield! [Point.Origin, Rectangle(10, 10, Color.Blue)
 //                             {x = 320; y = 240; z=0}, Ellipse(300, 150, Color.Red)
@@ -18,20 +18,20 @@ let clip1 = clip { yield {x=100; y=100; z=0}, scene1
                    yield {x=150; y=100; z=0}, scene1
                    yield {x=175; y=100; z=0}, scene1 }
 
-let movie1 = lazylist { for i in 1..10 do
-                        yield {x=100; y=i; z=0}, clip1 } |> newMovie
+let movie1 = (lazylist { for i in 1..10 do
+                         yield {x=100; y=i; z=0} } |> newMovie) clip1
 
 let rec repeat s = seq { yield! s 
                          yield! repeat s }
 
 let movie2 =
-    lazylist {
-            yield! lazylist { for i in 1..25 do yield {x=0; y=i; z=0}, clip1 }
-            yield! lazylist { for i in 1..25 do yield {x=i; y=25; z=0}, clip1 }
-            yield! lazylist { for i in 1..25 do yield {x=25; y=25-i; z=0}, clip1 }
-            yield! lazylist { for i in 1..25 do yield {x=25-i; y=0; z=0}, clip1 }
-        }
-    |> LazyList.repeat |> newMovie
+    (lazylist {
+             yield! lazylist { for i in 1..25 do yield {x=0; y=i; z=0} }
+             yield! lazylist { for i in 1..25 do yield {x=i; y=25; z=0} }
+             yield! lazylist { for i in 1..25 do yield {x=25; y=25-i; z=0} }
+             yield! lazylist { for i in 1..25 do yield {x=25-i; y=0; z=0} }
+         }
+     |> LazyList.repeat |> newMovie) clip1
 
 //let scene2 = shapes { yield Point.Origin, Rectangle(10, 10, Color.Blue)
 //                      yield! scene1 }
@@ -42,11 +42,11 @@ let clip3 = clip { yield! clip1
                    yield! movie2 }
 
 let movie3 =
-    lazylist {
+    (lazylist {
         for i in 1..100 do
         printfn "\n\n\nStart of image n°%i\n\n\n" i
-        yield {x=0; y=i; z=0}, clip3
-    } |> newMovie
+        yield {x=0; y=i; z=0}
+     } |> newMovie) clip3
 
 let cartoon = movie3
 
@@ -72,7 +72,6 @@ let main argv =
     let updatePicture (o:Object) (e:EventArgs) =
         match !c with
         | Some(c') -> play graphics c'
-                      //printfn "cartoon = %A" c
                       c := c'.GetNext()
         | _ -> ()
 
