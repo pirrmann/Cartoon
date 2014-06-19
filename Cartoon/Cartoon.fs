@@ -1,64 +1,46 @@
 ﻿module Cartoon
 
-open System
-open System.Drawing
-
 open Shapes
 open LazyList
 
-type Id = | Id of int
-let currentId = ref (Id 0)
-let getNewId () =
-    match !currentId with
-    | Id(counter) ->
-        currentId := Id(counter + 1)
-        !currentId
-    
-
 type Clip =
-    | Frame of Id * Point * Shapes
-    | Clip of Id * Point * Clip list
-    | Movie of Id * LazyList<Point> * Clip
+    | Frame of Point * Shapes
+    | Clip of Point * Clip list
+    | Movie of LazyList<Point> * Clip
     with member x.GetFrame() = match x with
-                               | Frame(id, point, frame) -> Some(point, frame)
-                               | Clip(id, point, clips) ->
+                               | Frame(point, frame) -> Some(point, frame)
+                               | Clip(point, clips) ->
                                     match clips |> List.choose (fun c -> c.GetFrame()) with
                                     | [] -> None
                                     | frames -> Some(frames |> List.reduce combinePlacedElements)
-                               | Movie(id, positions, clip) -> positions.Head |> Option.bind (fun (p, _) -> clip.GetFrame() |> Option.map(fun (p2, f) -> p + p2, f))
+                               | Movie(positions, clip) -> positions.Head |> Option.bind (fun (p, _) -> clip.GetFrame() |> Option.map(fun (p2, f) -> p + p2, f))
 
-         member x.GetId() = match x with
-                            | Frame(id, _, _)
-                            | Clip(id, _, _)
-                            | Movie(id, _, _) -> id
-                                                 
          member x.GetNext() =
-                              printfn "GetNext() on id %A" (x.GetId())
                               match x with
                               | Frame(_) -> Some(x)
-                              | Clip(id, point, clips) ->
+                              | Clip(point, clips) ->
                                     match clips |> List.choose (fun c -> c.GetNext()) with
                                     | [] -> None
-                                    | nextClips -> Some(Clip(getNewId(), point, nextClips))
-                              | Movie(id, positions, clip) -> positions.Head
+                                    | nextClips -> Some(Clip(point, nextClips))
+                              | Movie(positions, clip) -> positions.Head
                                                               |> Option.map (fun(_, tail) -> eval tail)
                                                               |> Option.bind (fun tail ->
                                                                   clip.GetNext()
                                                                   |> Option.map(fun next ->
-                                                                      Movie(getNewId(), tail, next)))
+                                                                      Movie(tail, next)))
          member x.RelativeTo(p: Point) = match x with
-                                         | Frame(id, p2, f) -> Frame(getNewId(), p2 - p, f)
-                                         | Clip(id, p2, clips) -> Clip(getNewId(), p2 - p, clips)
-                                         | Movie(id, ps, clip) -> Movie(getNewId(), ps |> LazyList.map (fun (p2) -> p2-p), clip)
+                                         | Frame(p2, f) -> Frame(p2 - p, f)
+                                         | Clip(p2, clips) -> Clip(p2 - p, clips)
+                                         | Movie(ps, clip) -> Movie(ps |> LazyList.map (fun (p2) -> p2-p), clip)
 
 let rec combineClips c1 c2 =
     match c1, c2 with
-    | Frame(_, p1, f1), Frame(_, p2, f2) -> combinePlacedElements (p1, f1) (p2, f2) |> (fun (p, ss) -> Frame(getNewId(), p, ss))
-    | Movie(_, _, _), Frame(_, _, _)
-    | Frame(_, _, _), Movie(_, _, _)
-    | Movie(_, _, _), Movie(_, _, _) -> Clip(getNewId(), Point.Origin, [c1; c2])
-    | Clip(_, p, clips), c
-    | c , Clip(_, p, clips) ->  Clip(getNewId(), p, c.RelativeTo(p) :: clips)
+    | Frame(p1, f1), Frame(p2, f2) -> combinePlacedElements (p1, f1) (p2, f2) |> Frame
+    | Movie(_, _), Frame(_, _)
+    | Frame(_, _), Movie(_, _)
+    | Movie(_, _), Movie(_, _) -> Clip(Point.Origin, [c1; c2])
+    | Clip(p, clips), c
+    | c , Clip(p, clips) ->  Clip(p, c.RelativeTo(p) :: clips)
 
 type ShapesBuilder() =
     member x.Zero() = []
@@ -71,8 +53,8 @@ type ShapesBuilder() =
     member x.Combine(f1, f2) = f1 @ f2
 
 type ClipBuilder() =
-    member x.Zero() = Frame(getNewId(), Point.Origin, [])
-    member x.Yield(p:Point, shapes:Shapes) = Frame(getNewId(), p, shapes)
+    member x.Zero() = Frame(Point.Origin, [])
+    member x.Yield(p:Point, shapes:Shapes) = Frame(p, shapes)
     member x.YieldFrom(c:Clip) = c
     member x.Delay(f) = f()
     member x.Combine(c1, c2) = combineClips c1 c2
@@ -80,11 +62,3 @@ type ClipBuilder() =
 let shapes = new ShapesBuilder()
 let clip = new ClipBuilder()
 
-let play (graphics:Graphics) (clip:Clip) =
-    match clip.GetFrame() with
-    | Some(point, frame) ->
-        use image = new Bitmap(640, 480, graphics)
-        use g2 = Graphics.FromImage(image)
-        draw g2 (point, frame)
-        graphics.DrawImage(image, 0, 0)
-    | None -> ()

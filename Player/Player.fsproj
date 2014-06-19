@@ -49,6 +49,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Drawer.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
   </ItemGroup>

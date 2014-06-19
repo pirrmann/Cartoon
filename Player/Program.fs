@@ -6,47 +6,46 @@ open LazyList
 open Shapes
 open Cartoon
 
-let newMovie positions c = Movie(getNewId(), eval positions, c)
+open Drawer
 
-//let scene = shapes { yield! [Point.Origin, Rectangle(10, 10, Color.Blue)
-//                             {x = 320; y = 240; z=0}, Ellipse(300, 150, Color.Red)
-//                             {x = 320; y = 240; z=0}, Ellipse(150, 300, Color.Red)] }
+let animateWith positions c = Movie(eval positions, c)
 
-let scene1 = shapes { yield Point.Origin, Rectangle(10, 10, Color.Blue) }
+let scene1 = shapes { yield! [Point.Origin, Rectangle(10, 10, Color.Blue)
+                              {x = 8; y = 60; z=0}, Ellipse(16, 8, Color.Red)
+                              {x = 8; y = 60; z=0}, Ellipse(8, 16, Color.Red)] }
+
 let clip1 = clip { yield {x=100; y=100; z=0}, scene1
                    yield {x=125; y=100; z=0}, scene1
                    yield {x=150; y=100; z=0}, scene1
                    yield {x=175; y=100; z=0}, scene1 }
 
-let movie1 = (lazylist { for i in 1..10 do
-                         yield {x=100; y=i; z=0} } |> newMovie) clip1
+let movie1 = clip1 |> animateWith (lazylist { for i in 1..10 do
+                                              yield {x=100; y=i; z=0} })
 
 let rec repeat s = seq { yield! s 
                          yield! repeat s }
 
 let movie2 =
-    (lazylist {
-             yield! lazylist { for i in 1..25 do yield {x=0; y=i; z=0} }
-             yield! lazylist { for i in 1..25 do yield {x=i; y=25; z=0} }
-             yield! lazylist { for i in 1..25 do yield {x=25; y=25-i; z=0} }
-             yield! lazylist { for i in 1..25 do yield {x=25-i; y=0; z=0} }
-         }
-     |> LazyList.repeat |> newMovie) clip1
-
-//let scene2 = shapes { yield Point.Origin, Rectangle(10, 10, Color.Blue)
-//                      yield! scene1 }
-//let clip2 = clip { yield {x=100; y=100; z=0}, scene2 
-//                   yield! clip1 }
+    clip1
+    |> animateWith
+        (lazylist {
+                 yield! lazylist { for i in 1..25 do yield {x=0; y=i; z=0} }
+                 yield! lazylist { for i in 1..25 do yield {x=i; y=25; z=0} }
+                 yield! lazylist { for i in 1..25 do yield {x=25; y=25-i; z=0} }
+                 yield! lazylist { for i in 1..25 do yield {x=25-i; y=0; z=0} }
+             }
+         |> LazyList.repeat) 
 
 let clip3 = clip { yield! clip1
                    yield! movie2 }
 
 let movie3 =
-    (lazylist {
-        for i in 1..100 do
-        printfn "\n\n\nStart of image n°%i\n\n\n" i
-        yield {x=0; y=i; z=0}
-     } |> newMovie) clip3
+    clip3
+    |> animateWith
+        (lazylist {
+            for i in 1..100 do
+            yield {x=0; y=i; z=0}
+         })
 
 let cartoon = movie3
 
