@@ -3,20 +3,8 @@
 open System
 open System.Drawing
 
+open Shapes
 open LazyList
-
-type Point = { x:int; y:int; z:int }
-    with static member Origin = { x=0; y=0; z=0 }
-         static member (+) (p1, p2) = { x = p1.x + p2.x
-                                        y = p1.y + p2.y
-                                        z = p1.z + p2.z }
-         static member (-) (p1, p2) = { x = p1.x - p2.x
-                                        y = p1.y - p2.y
-                                        z = p1.z - p2.z }
-
-let combinePlacedElements (p1, f1) (p2, f2) =
-    let diff = p2 - p1
-    p1, f1 @ (f2 |> List.map (fun (p:Point, s) -> p + diff, s))
 
 type Id = | Id of int
 let currentId = ref (Id 0)
@@ -27,11 +15,7 @@ let getNewId () =
         !currentId
     
 
-type Shape =
-    | Rectangle of int * int * Color
-    | Ellipse of int * int * Color
-and Shapes = (Point * Shape) list
-and Clip =
+type Clip =
     | Frame of Id * Point * Shapes
     | Clip of Id * Point * Clip list
     | Movie of Id * LazyList<Point * Clip>
@@ -66,19 +50,14 @@ and Clip =
                                          | Clip(id, p2, clips) -> Clip(getNewId(), p2 - p, clips)
                                          | Movie(id, s) -> Movie(getNewId(), s |> LazyList.map (fun (p2, c) -> p2-p, c))
 
-let drawShape (graphics:Graphics) (point, shape) =
-    match shape with
-    | Rectangle(x, y, color) ->
-        use brush = new SolidBrush(color)
-        graphics.FillRectangle(brush, point.x, point.y, x, y)
-    | Ellipse(x, y, color) ->
-        use brush = new SolidBrush(color)
-        graphics.FillEllipse(brush, point.x - x/2, point.y - y/2, x, y)
-
-let draw (graphics:Graphics) (point, frame) =
-    graphics.Clear(Color.White)
-    for anchor, shape in frame |> Seq.sortBy (fun (p, _) -> p.z) do
-    (point + anchor, shape) |> drawShape graphics
+let rec combineClips c1 c2 =
+    match c1, c2 with
+    | Frame(_, p1, f1), Frame(_, p2, f2) -> combinePlacedElements (p1, f1) (p2, f2) |> (fun (p, ss) -> Frame(getNewId(), p, ss))
+    | Movie(_, _), Frame(_, _, _)
+    | Frame(_, _, _), Movie(_, _)
+    | Movie(_, _), Movie(_, _) -> Clip(getNewId(), Point.Origin, [c1; c2])
+    | Clip(_, p, clips), c
+    | c , Clip(_, p, clips) ->  Clip(getNewId(), p, c.RelativeTo(p) :: clips)
 
 type ShapesBuilder() =
     member x.Zero() = []
@@ -90,17 +69,6 @@ type ShapesBuilder() =
     member x.Delay(f) = f()
     member x.Combine(f1, f2) = f1 @ f2
 
-let shapes = new ShapesBuilder()
-
-let rec combineClips c1 c2 =
-    match c1, c2 with
-    | Frame(_, p1, f1), Frame(_, p2, f2) -> combinePlacedElements (p1, f1) (p2, f2) |> (fun (p, ss) -> Frame(getNewId(), p, ss))
-    | Movie(_, _), Frame(_, _, _)
-    | Frame(_, _, _), Movie(_, _)
-    | Movie(_, _), Movie(_, _) -> Clip(getNewId(), Point.Origin, [c1; c2])
-    | Clip(_, p, clips), c
-    | c , Clip(_, p, clips) ->  Clip(getNewId(), p, c.RelativeTo(p) :: clips)
-
 type ClipBuilder() =
     member x.Zero() = Frame(getNewId(), Point.Origin, [])
     member x.Yield(p:Point, shapes:Shapes) = Frame(getNewId(), p, shapes)
@@ -108,6 +76,7 @@ type ClipBuilder() =
     member x.Delay(f) = f()
     member x.Combine(c1, c2) = combineClips c1 c2
 
+let shapes = new ShapesBuilder()
 let clip = new ClipBuilder()
 
 let play (graphics:Graphics) (clip:Clip) =

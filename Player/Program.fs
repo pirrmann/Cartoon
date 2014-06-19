@@ -3,6 +3,7 @@ open System.Drawing
 open System.Windows.Forms
 
 open LazyList
+open Shapes
 open Cartoon
 
 let newMovie m = Movie(getNewId(), eval m)

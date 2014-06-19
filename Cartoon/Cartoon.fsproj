@@ -50,6 +50,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="LazyList.fs" />
+    <Compile Include="Shapes.fs" />
     <Compile Include="Cartoon.fs" />
   </ItemGroup>
   <ItemGroup>
