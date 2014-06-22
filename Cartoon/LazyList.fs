@@ -44,6 +44,14 @@ let eval (x:Lazy<'T>) = x.Value
 
 let rec repeat loop = lazy LazyConcat(eval loop, loop)
 
+let rec holdOnLast (ll:LazyList<'a>) =
+    match ll.Head with
+    | None -> Empty
+    | Some(head, tail) ->
+        match eval tail with
+        | Empty -> LazyConcat(ll, lazy holdOnLast ll)
+        | _ -> LazyCons(head, lazy holdOnLast (eval tail))
+
 type LazyListBuilder() =
     let concat (x:LazyList<'T>) (y:Lazy<LazyList<'T>>) =
         match x with

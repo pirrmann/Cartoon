@@ -48,18 +48,20 @@ let movie3 =
          })
 
 let head =
-    Frame(
-        {x = 320; y = 240; z=0},
-        shapes {
-            yield {x = 0; y = 0; z=0}, Ellipse(Vector(300, 300), Pen.Red)
-            yield {x = -50; y = -50; z=0}, EllipseFill(Vector(20, 20), Brush.Blue)            
-            yield {x = 50; y = -50; z=0}, EllipseFill(Vector(20, 20), Brush.Blue)
-            yield {x = -50; y = 50; z=0}, Bezier(Vector(100, 0), Vector(10, 10), Vector(-10, 10), { Pen.Green with Thickness = 5 })
-        })
+    clips {
+        yield
+            {x = 0; y = 0; z=0},
+            shapes {
+                yield {x = 0; y = 0; z=0}, Ellipse(Vector(300, 300), Pen.Red)
+                yield {x = 50; y = -50; z=0}, EllipseFill(Vector(20, 20), Brush.Blue)
+                yield {x = -50; y = -50; z=0}, EllipseFill(Vector(20, 20), Brush.Blue) }
+        yield! Clip(
+                    {x = 0; y = 50; z=0},
+                    lazylist { for i in 10 .. 40 do
+                               yield Frame({x = -50; y = 0; z=0}, [{x = 0; y = 0; z=0}, Bezier(Vector(100, 0), Vector(i, i), Vector(-i, i), { Pen.Green with Thickness = 5 })]) } |> eval |> holdOnLast)
+    }
 
-let test = lazylist { for i in 1 .. 100 do yield Bezier(Vector(100, 100), Vector(i, 0), Vector(-i, 0), { Pen.Green with Thickness = 5 }) }
-
-let cartoon = head
+let cartoon = Clips({x = 320; y = 240; z=0}, [head])
 
 [<EntryPoint>]
 [<STAThread>]
