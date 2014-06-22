@@ -8,16 +8,16 @@ open Cartoon
 
 open Drawer
 
-let animateWith positions c = Movie(eval positions, c)
+let animateWith positions c = Transformation(eval positions, c)
 
-let scene1 = shapes { yield! [Point.Origin, Rectangle(10, 10, Color.Blue)
-                              {x = 8; y = 60; z=0}, Ellipse(16, 8, Color.Red)
-                              {x = 8; y = 60; z=0}, Ellipse(8, 16, Color.Red)] }
+let scene1 = shapes { yield! [Point.Origin, RectangleFill(Vector(10, 10), Brush.Blue)
+                              {x = 8; y = 60; z = 0}, EllipseFill(Vector(16, 8), Brush.Red)
+                              {x = 8; y = 60; z = 0}, EllipseFill(Vector(8, 16), Brush.Red)] }
 
-let clip1 = clip { yield {x=100; y=100; z=0}, scene1
-                   yield {x=125; y=100; z=0}, scene1
-                   yield {x=150; y=100; z=0}, scene1
-                   yield {x=175; y=100; z=0}, scene1 }
+let clip1 = clips { yield {x=100; y=100; z=0}, scene1
+                    yield {x=125; y=100; z=0}, scene1
+                    yield {x=150; y=100; z=0}, scene1
+                    yield {x=175; y=100; z=0}, scene1 }
 
 let movie1 = clip1 |> animateWith (lazylist { for i in 1..10 do
                                               yield {x=100; y=i; z=0} })
@@ -36,8 +36,8 @@ let movie2 =
              }
          |> LazyList.repeat) 
 
-let clip3 = clip { yield! clip1
-                   yield! movie2 }
+let clip3 = clips { yield! clip1
+                    yield! movie2 }
 
 let movie3 =
     clip3
@@ -47,7 +47,19 @@ let movie3 =
             yield {x=0; y=i; z=0}
          })
 
-let cartoon = movie3
+let head =
+    Frame(
+        {x = 320; y = 240; z=0},
+        shapes {
+            yield {x = 0; y = 0; z=0}, Ellipse(Vector(300, 300), Pen.Red)
+            yield {x = -50; y = -50; z=0}, EllipseFill(Vector(20, 20), Brush.Blue)            
+            yield {x = 50; y = -50; z=0}, EllipseFill(Vector(20, 20), Brush.Blue)
+            yield {x = -50; y = 50; z=0}, Bezier(Vector(100, 0), Vector(10, 10), Vector(-10, 10), { Pen.Green with Thickness = 5 })
+        })
+
+let test = lazylist { for i in 1 .. 100 do yield Bezier(Vector(100, 100), Vector(i, 0), Vector(-i, 0), { Pen.Green with Thickness = 5 }) }
+
+let cartoon = head
 
 [<EntryPoint>]
 [<STAThread>]
