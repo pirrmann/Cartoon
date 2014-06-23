@@ -63,3 +63,5 @@ type ClipsBuilder() =
 
 let shapes = new ShapesBuilder()
 let clips = new ClipsBuilder()
+
+let transformWith positions c = Transformation(eval positions, c)

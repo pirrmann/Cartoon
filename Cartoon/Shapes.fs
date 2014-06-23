@@ -14,8 +14,6 @@ type Vector = Vector of x:int * y:int
     with static member Zero = Vector (0, 0)
          static member (+) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 + x2, y1 + y2)
          static member (-) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 - x2, y1 - y2)
-//                member this.X = match this with | Vector(x, _) -> x
-//                member this.Y = match this with | Vector(_, y) -> y
 
 type Color = { Alpha:float; R: float; G: float; B: float}
              with static member Transparent = { Alpha = 0.0; R = 1.0; G = 1.0; B = 1.0 }
@@ -50,4 +48,3 @@ and Shapes = (Point * Shape) list
 let combinePlacedElements (p1, f1) (p2, f2) =
     let diff = p2 - p1
     p1, f1 @ (f2 |> List.map (fun (p:Point, s) -> p + diff, s))
-
