@@ -1,17 +1,17 @@
 ﻿module Shapes
 
-type Point = { x:int; y:int; z:int }
-    with static member Origin = { x = 0; y = 0; z = 0 }
+type RefSpace = { x:float; y:float; z:float }
+    with static member Origin = { x = 0.0; y = 0.0; z = 0.0 }
          static member New(x, y, z) = { x = x; y = y; z = z }
-         static member (+) (p1, p2) = { x = p1.x + p2.x
-                                        y = p1.y + p2.y
-                                        z = p1.z + p2.z }
-         static member (-) (p1, p2) = { x = p1.x - p2.x
-                                        y = p1.y - p2.y
-                                        z = p1.z + p2.z }
+         static member (+) (s1, s2) = { x = s1.x + s2.x
+                                        y = s1.y + s2.y
+                                        z = s1.z + s2.z }
+         static member (-) (s1, s2) = { x = s1.x - s2.x
+                                        y = s1.y - s2.y
+                                        z = s1.z + s2.z }
 
-type Vector = Vector of x:int * y:int
-    with static member Zero = Vector (0, 0)
+type Vector = Vector of x:float * y:float
+    with static member Zero = Vector (0.0, 0.0)
          static member (+) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 + x2, y1 + y2)
          static member (-) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 - x2, y1 - y2)
 
@@ -43,8 +43,8 @@ type Shape =
     | Ellipse of Size:Vector * Pen:Pen
     | Line of Vector:Vector * Pen:Pen
     | Bezier of Vector:Vector * tangent1:Vector * tangent2:Vector * Pen:Pen
-and Shapes = (Point * Shape) list
+and Shapes = (RefSpace * Shape) list
 
-let combinePlacedElements (p1, f1) (p2, f2) =
-    let diff = p2 - p1
-    p1, f1 @ (f2 |> List.map (fun (p:Point, s) -> p + diff, s))
+let combinePlacedElements (s1, f1) (s2, f2) =
+    let diff = s2 - s1
+    s1, f1 @ (f2 |> List.map (fun (s:RefSpace, e) -> s + diff, e))
