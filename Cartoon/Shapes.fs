@@ -1,19 +1,23 @@
 ﻿module Shapes
 
-type RefSpace = { x:float; y:float; z:float }
-    with static member Origin = { x = 0.0; y = 0.0; z = 0.0 }
-         static member New(x, y, z) = { x = x; y = y; z = z }
-         static member (+) (s1, s2) = { x = s1.x + s2.x
-                                        y = s1.y + s2.y
-                                        z = s1.z + s2.z }
-         static member (-) (s1, s2) = { x = s1.x - s2.x
-                                        y = s1.y - s2.y
-                                        z = s1.z + s2.z }
-
 type Vector = Vector of x:float * y:float
     with static member Zero = Vector (0.0, 0.0)
          static member (+) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 + x2, y1 + y2)
          static member (-) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 - x2, y1 - y2)
+
+type RefSpace = { x:float; y:float; z:float; angle:float; scale: float }
+    with static member Origin = { x = 0.0; y = 0.0; z = 0.0; angle = 0.0; scale = 1.0 }
+         static member At(x, y) = { x = x; y = y; z = 0.0; angle = 0.0; scale = 1.0 }
+         static member (+) (s1, s2) = { x = s1.x + s2.x
+                                        y = s1.y + s2.y
+                                        z = s1.z + s2.z
+                                        angle = 0.0
+                                        scale = 1.0 }
+         static member (-) (s1, s2) = { x = s1.x - s2.x
+                                        y = s1.y - s2.y
+                                        z = s1.z + s2.z
+                                        angle = 0.0
+                                        scale = 1.0 }
 
 type Color = { Alpha:float; R: float; G: float; B: float}
              with static member Transparent = { Alpha = 0.0; R = 1.0; G = 1.0; B = 1.0 }
