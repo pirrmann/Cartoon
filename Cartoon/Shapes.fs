@@ -1,23 +1,34 @@
 ﻿module Shapes
 
+open Microsoft.FSharp.Math
+
 type Vector = Vector of x:float * y:float
     with static member Zero = Vector (0.0, 0.0)
          static member (+) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 + x2, y1 + y2)
          static member (-) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 - x2, y1 - y2)
 
-type RefSpace = { x:float; y:float; z:float; angle:float; scale: float }
-    with static member Origin = { x = 0.0; y = 0.0; z = 0.0; angle = 0.0; scale = 1.0 }
-         static member At(x, y) = { x = x; y = y; z = 0.0; angle = 0.0; scale = 1.0 }
-         static member (+) (s1, s2) = { x = s1.x + s2.x
-                                        y = s1.y + s2.y
-                                        z = s1.z + s2.z
-                                        angle = 0.0
-                                        scale = 1.0 }
-         static member (-) (s1, s2) = { x = s1.x - s2.x
-                                        y = s1.y - s2.y
-                                        z = s1.z + s2.z
-                                        angle = 0.0
-                                        scale = 1.0 }
+type TransformMatrix =
+    | TransformMatrix of (float * float) * (float * float) * (float * float)
+    with member this.x = match this with | TransformMatrix(_,_,(x,_)) -> x
+         member this.y = match this with | TransformMatrix(_,_,(_,y)) -> y
+         static member (*) (x, y) =
+            match x, y with
+            | TransformMatrix((m11, m12), (m21, m22), (mx, my)), TransformMatrix((n11, n12), (n21, n22), (nx, ny)) ->
+                TransformMatrix((m11 * n11 + m12 * n21, m11 * n12 + m12 * n22),
+                                (m21 * n11 + m22 * n21, m21 * n12 + m22 * n22),
+                                (mx * n11 + my * n21 + nx, mx * n12 + my * n22 + ny))
+
+let rotate alpha = TransformMatrix((cos alpha, sin alpha), (-sin alpha, cos alpha), (0.0, 0.0))
+let translate (x, y) = TransformMatrix((1.0, 0.0), (0.0, 1.0), (x, y))
+let scale ratio = TransformMatrix((ratio, 0.0), (0.0, ratio), (0.0, 0.0))
+
+type RefSpace = { transform:TransformMatrix; z:float }
+    with static member Origin = { transform = translate (0.0, 0.0); z = 0.0 }
+         static member At(x, y) = { transform = translate (x, y); z = 0.0 }
+         static member Transform(transform) = { transform = transform; z = 0.0 }
+         static member (+) (s1, s2) = { transform = s2.transform * s1.transform; z = s1.z + s2.z }
+                member this.x = this.transform.x
+                member this.y = this.transform.y
 
 type Color = { Alpha:float; R: float; G: float; B: float}
              with static member Transparent = { Alpha = 0.0; R = 1.0; G = 1.0; B = 1.0 }
@@ -49,6 +60,9 @@ type Shape =
     | Bezier of Vector:Vector * tangent1:Vector * tangent2:Vector * Pen:Pen
 and Shapes = (RefSpace * Shape) list
 
-let combinePlacedElements (s1, f1) (s2, f2) =
-    let diff = s2 - s1
-    s1, f1 @ (f2 |> List.map (fun (s:RefSpace, e) -> s + diff, e))
+let combinePlacedShapes (placedShapes:(RefSpace * Shapes) list) = 
+    seq {
+        for space, shapes in placedShapes do
+        for relativeSpace, shape in shapes do
+        yield space + relativeSpace, shape
+    } |> Seq.toList

@@ -14,8 +14,8 @@ type Clip =
                                | Clips(space, clips) ->
                                     match clips |> List.choose (fun c -> c.GetFrame()) with
                                     | [] -> None
-                                    | frames -> let relativeSpace, shapes = frames |> List.reduce combinePlacedElements
-                                                Some(space + relativeSpace, shapes)
+                                    | frames -> let shapes = combinePlacedShapes frames
+                                                Some(space, shapes)
                                | Transformation(spaces, clip) -> spaces.Head |> Option.bind (fun (space, _) -> clip.GetFrame() |> Option.map(fun (relativeSpace, f) -> space + relativeSpace, f))
 
          member x.GetNext() = match x with
@@ -31,17 +31,12 @@ type Clip =
                                                                     clip.GetNext()
                                                                     |> Option.map(fun next ->
                                                                        Transformation(tail, next)))
-         member x.RelativeTo(space: RefSpace) = match x with
-                                                | Frame(otherSpace, f) -> Frame(otherSpace - space, f)
-                                                | Clip(otherSpace, frames) -> Clip(otherSpace - space, frames)
-                                                | Clips(otherSpace, clips) -> Clips(otherSpace - space, clips)
-                                                | Transformation(ps, clip) -> Transformation(ps |> LazyList.map (fun (otherSpace) -> otherSpace - space), clip)
 
 let rec combineClips c1 c2 =
     match c1, c2 with
-    | Frame(space1, f1), Frame(space2, f2) -> combinePlacedElements (space1, f1) (space2, f2) |> Frame
+    | Frame(space1, f1), Frame(space2, f2) -> Frame(RefSpace.Origin, combinePlacedShapes [(space1, f1); (space2, f2)])
     | Clips(space, clips), c
-    | c , Clips(space, clips) ->  Clips(space, c.RelativeTo(space) :: clips)
+    | c , Clips(space, clips) when space = RefSpace.Origin -> Clips(space, c :: clips)
     | _ -> Clips(RefSpace.Origin, [c1; c2])
 
 type ShapesBuilder() =

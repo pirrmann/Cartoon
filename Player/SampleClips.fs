@@ -41,11 +41,26 @@ let movie3 =
             yield RefSpace.At(0.0, float i)
          })
 
+let rects =
+    [
+        RefSpace.Origin, Rectangle(Vector(200.0, 100.0), Pen.Red)
+        RefSpace.At(100.0, 0.0), Rectangle(Vector(200.0, 100.0), Pen.Blue)
+    ]
+
+let testRotate =
+    Frame(RefSpace.Origin, rects)
+    |> transformWith
+        (lazylist {
+            for i in 0..90 do
+            yield { RefSpace.Origin with transform = rotate(float i * System.Math.PI / 180.0) }
+         })
+
 let head =
     clips {
         yield RefSpace.Origin,
               shapes {
                 yield RefSpace.Origin, Ellipse(Vector(300.0, 300.0), Pen.Red)
+                yield RefSpace.At(-50.0, -220.0), RectangleFill(Vector(100.0, 100.0), Brush.Black)
                 yield RefSpace.At(50.0, -50.0), EllipseFill(Vector(20.0, 20.0), Brush.Blue)
                 yield RefSpace.At(-50.0, -50.0), EllipseFill(Vector(20.0, 20.0), Brush.Blue) }
         yield! Clip(
@@ -55,9 +70,16 @@ let head =
     }
 
 let test4 =
-    Clips(RefSpace.At(320.0, 240.0), [head])
+    Clips(RefSpace.At(0.0, 0.0), [head])
     |> transformWith
         (lazylist {
-            for i in 1..50 do
-            yield RefSpace.At(0.0, float i)
+            for i in 1..96 do
+            yield { RefSpace.Origin with transform = rotate(sin (float i * System.Math.PI / 12.0) / 3.0) }
+         })
+    |> transformWith
+        (lazylist {
+            for i in 1..96 do
+            let scaleRatio = min 1.2 (float i / 48.0)
+            let y = if i > 48 then float (i - 48) else 0.0
+            yield { RefSpace.Origin with transform = scale(scaleRatio) * translate(0.0, y) }
          })
