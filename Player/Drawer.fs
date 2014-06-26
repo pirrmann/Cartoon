@@ -18,31 +18,46 @@ open System.Drawing
 
 let toSystemPoint (Vector(x, y)) = new System.Drawing.PointF(single x, single y)
 
-let drawShape (graphics:Graphics) (space:RefSpace, shape) =
+let drawShape (graphics:Graphics) (space:RefSpace, shape:Shape) =
     graphics.TranslateTransform(320.0f, 240.0f)
     graphics.MultiplyTransform(space.transform |> toSystemTransform)
     match shape with
-    | Rectangle(Vector(width, height), pen) ->
+    | ClosedShape(shape, drawType) ->
+        match shape with
+        | Rectangle(Vector(width, height)) ->
+            match drawType with
+            | Contour(pen) ->
+                use pen = pen |> toSystemPen
+                graphics.DrawRectangle(pen, 0.0f, 0.0f, width |> float32, height |> float32)
+            | Fill(brush) ->
+                use brush = brush |> toSystemBrush
+                graphics.FillRectangle(brush, 0.0f, 0.0f, width |> float32, height |> float32)
+            | ContourAndFill(pen, brush) ->
+                use brush = brush |> toSystemBrush
+                graphics.FillRectangle(brush, 0.0f, 0.0f, width |> float32, height |> float32)
+                use pen = pen |> toSystemPen
+                graphics.DrawRectangle(pen, 0.0f, 0.0f, width |> float32, height |> float32)
+        | Ellipse(Vector(width, height)) ->
+            graphics.MultiplyTransform(Transforms.translate (- width/2.0, - height/2.0) |> toSystemTransform)
+            match drawType with
+            | Contour(pen) ->
+                use pen = pen |> toSystemPen
+                graphics.DrawEllipse(pen, 0.0f, 0.0f, width |> float32, height |> float32)
+            | Fill(brush) ->
+                use brush = brush |> toSystemBrush
+                graphics.FillEllipse(brush, 0.0f, 0.0f, width |> float32, height |> float32)
+            | ContourAndFill(pen, brush) ->
+                use brush = brush |> toSystemBrush
+                graphics.FillEllipse(brush, 0.0f, 0.0f, width |> float32, height |> float32)
+                use pen = pen |> toSystemPen
+                graphics.DrawEllipse(pen, 0.0f, 0.0f, width |> float32, height |> float32)
+    | Path(path, pen) ->
         use pen = pen |> toSystemPen
-        graphics.DrawRectangle(pen, 0.0f, 0.0f, width |> float32, height |> float32)
-    | RectangleFill(Vector(width, height), brush) ->
-        use brush = brush |> toSystemBrush
-        graphics.FillRectangle(brush, 0.0f, 0.0f, width |> float32, height |> float32)
-    | Ellipse(Vector(width, height), pen) ->
-        graphics.MultiplyTransform(Transforms.translate (- width/2.0, - height/2.0) |> toSystemTransform)
-        use pen = pen |> toSystemPen
-        graphics.DrawEllipse(pen, 0.0f, 0.0f, width |> float32, height |> float32)
-    | EllipseFill(Vector(width, height), brush) ->
-        graphics.MultiplyTransform(Transforms.translate (- width/2.0, - height/2.0) |> toSystemTransform)
-        use brush = brush |> toSystemBrush
-        graphics.FillEllipse(brush, 0.0f, 0.0f, width |> float32, height |> float32)
-    | Line(Vector(x, y), pen) ->
-        use pen = pen |> toSystemPen
-        graphics.DrawLine(pen, 0.0f, 0.0f, x |> float32, y |> float32)
-    | Bezier(v, t1, t2, pen) ->
-        use pen = pen |> toSystemPen
-        let p2 = v
-        graphics.DrawBezier(pen, Vector(0.0, 0.0) |> toSystemPoint,  t1 |> toSystemPoint, p2 + t2 |> toSystemPoint, p2 |> toSystemPoint)
+        match path with
+        | Line(Vector(x, y)) ->
+            graphics.DrawLine(pen, 0.0f, 0.0f, x |> float32, y |> float32)
+        | Bezier(p2, t1, t2) ->
+            graphics.DrawBezier(pen, Vector(0.0, 0.0) |> toSystemPoint,  t1 |> toSystemPoint, p2 + t2 |> toSystemPoint, p2 |> toSystemPoint)
 
     graphics.ResetTransform()
 

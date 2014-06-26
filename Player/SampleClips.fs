@@ -4,9 +4,9 @@ open FCartoon
 open FCartoon.LazyList
 open FCartoon.Builders
 
-let scene1 = shapes { yield! [RefSpace.Origin, RectangleFill(Vector(10.0, 10.0), Brush.Blue)
-                              RefSpace.At(8.0, 60.0), EllipseFill(Vector(16.0, 8.0), Brush.Red)
-                              RefSpace.At(8.0, 60.0), EllipseFill(Vector(8.0, 16.0), Brush.Red)] }
+let scene1 = shapes { yield! [RefSpace.Origin, ClosedShape(Rectangle(Vector(10.0, 10.0)), Fill Brush.Blue)
+                              RefSpace.At(8.0, 60.0), ClosedShape(Ellipse(Vector(16.0, 8.0)), Fill Brush.Red)
+                              RefSpace.At(8.0, 60.0), ClosedShape(Ellipse(Vector(8.0, 16.0)), Fill Brush.Red)] }
 
 let clip1 = clips { yield RefSpace.At(100.0, 100.0), scene1
                     yield RefSpace.At(125.0, 100.0), scene1
@@ -43,8 +43,8 @@ let movie3 =
 
 let rects =
     [
-        RefSpace.Origin, Rectangle(Vector(200.0, 100.0), Pen.Red)
-        RefSpace.At(100.0, 0.0), Rectangle(Vector(200.0, 100.0), Pen.Blue)
+        RefSpace.Origin, (ClosedShape(Rectangle(Vector(200.0, 100.0)), Contour Pen.Red))
+        RefSpace.At(100.0, 0.0), (ClosedShape(Rectangle(Vector(200.0, 100.0)), Contour Pen.Blue))
     ]
 
 let testRotate =
@@ -59,14 +59,14 @@ let head =
     clips {
         yield RefSpace.Origin,
               shapes {
-                yield RefSpace.Origin, Ellipse(Vector(300.0, 300.0), Pen.Red)
-                yield RefSpace.At(-50.0, -220.0), RectangleFill(Vector(100.0, 100.0), Brush.Black)
-                yield RefSpace.At(50.0, -50.0), EllipseFill(Vector(20.0, 20.0), Brush.Blue)
-                yield RefSpace.At(-50.0, -50.0), EllipseFill(Vector(20.0, 20.0), Brush.Blue) }
+                yield RefSpace.Origin, ClosedShape(Ellipse(Vector(300.0, 300.0)), Contour Pen.Red)
+                yield RefSpace.At(-50.0, -220.0), ClosedShape(Rectangle(Vector(100.0, 100.0)), Fill Brush.Black)
+                yield RefSpace.At(50.0, -50.0), ClosedShape(Ellipse(Vector(20.0, 20.0)), Fill Brush.Blue)
+                yield RefSpace.At(-50.0, -50.0), ClosedShape(Ellipse(Vector(20.0, 20.0)), Fill Brush.Blue) }
         yield! Clip(
                     RefSpace.At(0.0, 50.0),
                     lazylist { for i in 10 .. 40 do
-                               yield Frame(RefSpace.At(-50.0, 0.0), [RefSpace.Origin, Bezier(Vector(100.0, 0.0), Vector(float i, float i), Vector(float (-i), float i), { Pen.Green with Thickness = 5 })]) } |> eval |> holdOnLast)
+                               yield Frame(RefSpace.At(-50.0, 0.0), [RefSpace.Origin, Path((Bezier(Vector(100.0, 0.0), Vector(float i, float i), Vector(float (-i), float i)), { Pen.Green with Thickness = 5.0 }))]) } |> eval |> holdOnLast)
     }
 
 let test4 =
@@ -83,3 +83,14 @@ let test4 =
             let y = if i > 48 then float (i - 48) else 0.0
             yield { RefSpace.Origin with transform = Transforms.scale(scaleRatio) * Transforms.translate(0.0, y) }
          })
+
+open Dsl
+
+let scene2 = shapes {
+    yield rectangle (100.0, 100.0) |> withContour Pen.Blue |> at origin
+    yield ellipse (100.0, 100.0) |> withContourAndFill ({Pen.Black with Thickness = 5.0}, Brush.Red) |> at (-50.0, -50.0)
+    yield line (0.0, 0.0) (100.0, 100.0) |> withPen Pen.Green
+    yield bezier (0.0, 0.0) (100.0, 100.0) (0.0, 50.0) (0.0, -50.0) |> withPen { Pen.Red with Thickness = 3.0 }
+    }
+
+let test5 = Frame(RefSpace.Origin, scene2)

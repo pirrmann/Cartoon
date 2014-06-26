@@ -39,12 +39,12 @@ type Color = { Alpha:float; R: float; G: float; B: float} with
     static member Green =       { Alpha = 1.0; R = 0.0; G = 1.0; B = 0.0 }
     static member Blue =        { Alpha = 1.0; R = 0.0; G = 0.0; B = 1.0 }
 
-type Pen = { Color:Color; Thickness:int } with
-    static member White = { Color = Color.White; Thickness = 1 }
-    static member Black = { Color = Color.Black; Thickness = 1 }
-    static member Red =   { Color = Color.Red; Thickness = 1 }
-    static member Green = { Color = Color.Green; Thickness = 1 }
-    static member Blue =  { Color = Color.Blue; Thickness = 1 }
+type Pen = { Color:Color; Thickness:float } with
+    static member White = { Color = Color.White; Thickness = 1.0 }
+    static member Black = { Color = Color.Black; Thickness = 1.0 }
+    static member Red =   { Color = Color.Red; Thickness = 1.0 }
+    static member Green = { Color = Color.Green; Thickness = 1.0 }
+    static member Blue =  { Color = Color.Blue; Thickness = 1.0 }
 
 type Brush = { Color:Color } with
     static member White = { Color = Color.White }
@@ -53,11 +53,20 @@ type Brush = { Color:Color } with
     static member Green = { Color = Color.Green }
     static member Blue =  { Color = Color.Blue }
 
+type ClosedShape =
+    | Rectangle of Size:Vector
+    | Ellipse of Size:Vector
+
+type Path =
+    | Line of Vector:Vector
+    | Bezier of Vector:Vector * tangent1:Vector * tangent2:Vector
+
+type DrawType =
+    | Contour of Pen
+    | Fill of Brush
+    | ContourAndFill of Pen * Brush
+
 type Shape =
-    | RectangleFill of Size:Vector * Brush:Brush
-    | Rectangle of Size:Vector * Pen:Pen
-    | EllipseFill of Size:Vector * Brush:Brush
-    | Ellipse of Size:Vector * Pen:Pen
-    | Line of Vector:Vector * Pen:Pen
-    | Bezier of Vector:Vector * tangent1:Vector * tangent2:Vector * Pen:Pen
+    | ClosedShape of ClosedShape * DrawType
+    | Path of Path * Pen
 and Shapes = (RefSpace * Shape) list
