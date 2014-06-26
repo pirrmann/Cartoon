@@ -1,8 +1,8 @@
 ﻿module SampleClips
 
-open LazyList
-open Shapes
-open Cartoon
+open FCartoon
+open FCartoon.LazyList
+open FCartoon.Builders
 
 let scene1 = shapes { yield! [RefSpace.Origin, RectangleFill(Vector(10.0, 10.0), Brush.Blue)
                               RefSpace.At(8.0, 60.0), EllipseFill(Vector(16.0, 8.0), Brush.Red)
@@ -28,7 +28,7 @@ let movie2 =
                  yield! lazylist { for i in 1..25 do yield RefSpace.At(25.0, 25.0 - float i) }
                  yield! lazylist { for i in 1..25 do yield RefSpace.At(25.0 - float i, 0.0) }
              }
-         |> LazyList.repeat) 
+         |> FCartoon.LazyList.repeat) 
 
 let clip3 = clips { yield! clip1
                     yield! movie2 }
@@ -52,7 +52,7 @@ let testRotate =
     |> transformWith
         (lazylist {
             for i in 0..90 do
-            yield { RefSpace.Origin with transform = rotate(float i * System.Math.PI / 180.0) }
+            yield { RefSpace.Origin with transform = Transforms.rotate(float i * System.Math.PI / 180.0) }
          })
 
 let head =
@@ -74,12 +74,12 @@ let test4 =
     |> transformWith
         (lazylist {
             for i in 1..96 do
-            yield { RefSpace.Origin with transform = rotate(sin (float i * System.Math.PI / 12.0) / 3.0) }
+            yield { RefSpace.Origin with transform = Transforms.rotate(sin (float i * System.Math.PI / 12.0) / 3.0) }
          })
     |> transformWith
         (lazylist {
             for i in 1..96 do
             let scaleRatio = min 1.2 (float i / 48.0)
             let y = if i > 48 then float (i - 48) else 0.0
-            yield { RefSpace.Origin with transform = scale(scaleRatio) * translate(0.0, y) }
+            yield { RefSpace.Origin with transform = Transforms.scale(scaleRatio) * Transforms.translate(0.0, y) }
          })

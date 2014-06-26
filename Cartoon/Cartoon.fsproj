@@ -54,6 +54,7 @@
     <Compile Include="LazyList.fs" />
     <Compile Include="Shapes.fs" />
     <Compile Include="Cartoon.fs" />
+    <Compile Include="Builders.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

@@ -1,15 +1,14 @@
 ﻿module Drawer
 
-open Shapes
-open Cartoon
+open FCartoon
 
-let toSystemColor (color:Shapes.Color) =
+let toSystemColor (color:Color) =
     System.Drawing.Color.FromArgb(int(color.Alpha * 255.0), int(color.R * 255.0), int(color.G * 255.0), int(color.B * 255.0))
 
-let toSystemPen (pen:Shapes.Pen) =
+let toSystemPen (pen:Pen) =
     new System.Drawing.Pen(pen.Color |> toSystemColor, pen.Thickness |> single)
 
-let toSystemBrush (brush:Shapes.Brush) =
+let toSystemBrush (brush:Brush) =
     new System.Drawing.SolidBrush(brush.Color |> toSystemColor)
 
 let toSystemTransform (TransformMatrix((m11, m12), (m21, m22), (dx, dy))) =
@@ -30,11 +29,11 @@ let drawShape (graphics:Graphics) (space:RefSpace, shape) =
         use brush = brush |> toSystemBrush
         graphics.FillRectangle(brush, 0.0f, 0.0f, width |> float32, height |> float32)
     | Ellipse(Vector(width, height), pen) ->
-        graphics.MultiplyTransform(translate (- width/2.0, - height/2.0) |> toSystemTransform)
+        graphics.MultiplyTransform(Transforms.translate (- width/2.0, - height/2.0) |> toSystemTransform)
         use pen = pen |> toSystemPen
         graphics.DrawEllipse(pen, 0.0f, 0.0f, width |> float32, height |> float32)
     | EllipseFill(Vector(width, height), brush) ->
-        graphics.MultiplyTransform(translate (- width/2.0, - height/2.0) |> toSystemTransform)
+        graphics.MultiplyTransform(Transforms.translate (- width/2.0, - height/2.0) |> toSystemTransform)
         use brush = brush |> toSystemBrush
         graphics.FillEllipse(brush, 0.0f, 0.0f, width |> float32, height |> float32)
     | Line(Vector(x, y), pen) ->

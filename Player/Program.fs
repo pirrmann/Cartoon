@@ -2,10 +2,6 @@
 open System.Drawing
 open System.Windows.Forms
 
-open LazyList
-open Shapes
-open Cartoon
-
 open Drawer
 open SampleClips
 
