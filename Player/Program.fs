@@ -10,6 +10,8 @@ let cartoon = test5
 [<EntryPoint>]
 [<STAThread>]
 let main argv = 
+    let c = ref(Some(cartoon))
+
     let w = new Form()
     w.Text <- "Cartoon test"
     w.Width <- 640 + w.Width - w.ClientSize.Width
@@ -20,11 +22,20 @@ let main argv =
     canvas.Left <- 0
     canvas.Size <- w.ClientSize
 
+    let restartButton = new Button()
+    restartButton.Top <- 0
+    restartButton.Left <- 0
+    restartButton.Text <- "Restart"
+
+    w.Controls.Add(restartButton)
     w.Controls.Add(canvas)
 
-    let graphics = canvas.CreateGraphics()
+    let onRestartClick (o:Object) (e:EventArgs) =
+        c := Some(cartoon)
 
-    let c = ref(Some(cartoon))
+    restartButton.Click.AddHandler(new EventHandler(onRestartClick))
+
+    let graphics = canvas.CreateGraphics()
 
     let updatePicture (o:Object) (e:EventArgs) =
         match !c with

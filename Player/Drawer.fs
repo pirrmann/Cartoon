@@ -25,32 +25,20 @@ let drawShape (graphics:Graphics) (space:RefSpace, shape:Shape) =
     | ClosedShape(shape, drawType) ->
         match shape with
         | Rectangle(Vector(width, height)) ->
-            match drawType with
-            | Contour(pen) ->
-                use pen = pen |> toSystemPen
-                graphics.DrawRectangle(pen, 0.0f, 0.0f, width |> float32, height |> float32)
-            | Fill(brush) ->
+            drawType.Brush |> Option.iter (fun brush ->
                 use brush = brush |> toSystemBrush
-                graphics.FillRectangle(brush, 0.0f, 0.0f, width |> float32, height |> float32)
-            | ContourAndFill(pen, brush) ->
-                use brush = brush |> toSystemBrush
-                graphics.FillRectangle(brush, 0.0f, 0.0f, width |> float32, height |> float32)
+                graphics.FillRectangle(brush, 0.0f, 0.0f, width |> float32, height |> float32))
+            drawType.Pen |> Option.iter (fun pen ->
                 use pen = pen |> toSystemPen
-                graphics.DrawRectangle(pen, 0.0f, 0.0f, width |> float32, height |> float32)
+                graphics.DrawRectangle(pen, 0.0f, 0.0f, width |> float32, height |> float32))
         | Ellipse(Vector(width, height)) ->
             graphics.MultiplyTransform(Transforms.translate (- width/2.0, - height/2.0) |> toSystemTransform)
-            match drawType with
-            | Contour(pen) ->
-                use pen = pen |> toSystemPen
-                graphics.DrawEllipse(pen, 0.0f, 0.0f, width |> float32, height |> float32)
-            | Fill(brush) ->
+            drawType.Brush |> Option.iter (fun brush ->
                 use brush = brush |> toSystemBrush
-                graphics.FillEllipse(brush, 0.0f, 0.0f, width |> float32, height |> float32)
-            | ContourAndFill(pen, brush) ->
-                use brush = brush |> toSystemBrush
-                graphics.FillEllipse(brush, 0.0f, 0.0f, width |> float32, height |> float32)
+                graphics.FillEllipse(brush, 0.0f, 0.0f, width |> float32, height |> float32))
+            drawType.Pen |> Option.iter (fun pen ->
                 use pen = pen |> toSystemPen
-                graphics.DrawEllipse(pen, 0.0f, 0.0f, width |> float32, height |> float32)
+                graphics.DrawEllipse(pen, 0.0f, 0.0f, width |> float32, height |> float32))
     | Path(path, pen) ->
         use pen = pen |> toSystemPen
         match path with

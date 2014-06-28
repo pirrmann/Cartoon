@@ -65,6 +65,8 @@ type DrawType =
     | Contour of Pen
     | Fill of Brush
     | ContourAndFill of Pen * Brush
+    with member x.Pen = match x with | Contour(p) | ContourAndFill(p, _) -> Some p | _ -> None
+         member x.Brush = match x with | Fill(b) | ContourAndFill(_, b) -> Some b | _ -> None
 
 type Shape =
     | ClosedShape of ClosedShape * DrawType

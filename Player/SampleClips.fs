@@ -60,9 +60,11 @@ let head =
         yield RefSpace.Origin,
               shapes {
                 yield RefSpace.Origin, ClosedShape(Ellipse(Vector(300.0, 300.0)), Contour Pen.Red)
-                yield RefSpace.At(-50.0, -220.0), ClosedShape(Rectangle(Vector(100.0, 100.0)), Fill Brush.Black)
-                yield RefSpace.At(50.0, -50.0), ClosedShape(Ellipse(Vector(20.0, 20.0)), Fill Brush.Blue)
-                yield RefSpace.At(-50.0, -50.0), ClosedShape(Ellipse(Vector(20.0, 20.0)), Fill Brush.Blue) }
+                yield RefSpace.At(-50.0, -230.0), ClosedShape(Rectangle(Vector(100.0, 100.0)), Fill Brush.Black)
+                yield RefSpace.At(0.0, -130.0), ClosedShape(Ellipse(Vector(150.0, 50.0)), Fill Brush.Black)
+                yield RefSpace.At(50.0, -50.0), ClosedShape(Ellipse(Vector(40.0, 40.0)), Fill Brush.Blue)
+                yield RefSpace.At(-50.0, -50.0), ClosedShape(Ellipse(Vector(80.0, 80.0)), Fill Brush.Blue)
+                yield RefSpace.At(10.0, -20.0), Path(Bezier(Vector(0.0, 40.0), Vector(-30.0, 30.0), Vector(-15.0, 15.0)), { Pen.Red with Thickness = 5.0 }) }
         yield! Clip(
                     RefSpace.At(0.0, 50.0),
                     lazylist { for i in 10 .. 40 do
