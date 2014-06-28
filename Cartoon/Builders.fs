@@ -1,5 +1,6 @@
 ﻿namespace FCartoon
 
+[<ReflectedDefinition>]
 module Builders =
     let rec private combineClips c1 c2 =
         match c1, c2 with

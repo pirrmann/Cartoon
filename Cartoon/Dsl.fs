@@ -1,5 +1,6 @@
 ﻿namespace FCartoon
 
+[<ReflectedDefinition>]
 module Dsl =
 
     let rectangle (width, height) = ClosedShape.Rectangle(Vector(width, height))

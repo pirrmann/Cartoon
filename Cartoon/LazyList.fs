@@ -1,5 +1,6 @@
 ﻿namespace FCartoon
 
+[<ReflectedDefinition>]
 type LazyList<'T> =
     | Empty
     | Singleton of 'T
@@ -17,6 +18,7 @@ type LazyList<'T> =
                                     | Empty -> Some(head, next)
                                     | _ -> Some(head, lazy LazyConcat(tail.Value, next))
 
+[<ReflectedDefinition>]
 module LazyList =
 
     let rec map f (ll:LazyList<'a>) =

@@ -1,5 +1,6 @@
 ﻿namespace FCartoon
 
+[<ReflectedDefinition>]
 module internal Combine =
     let PlacedShapes (placedShapes:(RefSpace * Shapes) list) = 
         seq {
@@ -8,6 +9,7 @@ module internal Combine =
             yield space + relativeSpace, shape
         } |> Seq.toList
 
+[<ReflectedDefinition>]
 type Clip =
     | Frame of RefSpace * Shapes
     | Clip of RefSpace * LazyList<Clip>

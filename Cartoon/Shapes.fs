@@ -2,11 +2,13 @@
 
 open Microsoft.FSharp.Math
 
+[<ReflectedDefinition>]
 type Vector = Vector of x:float * y:float
     with static member Zero = Vector (0.0, 0.0)
             static member (+) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 + x2, y1 + y2)
             static member (-) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 - x2, y1 - y2)
 
+[<ReflectedDefinition>]
 type TransformMatrix =
     | TransformMatrix of (float * float) * (float * float) * (float * float)
     with member this.x = match this with | TransformMatrix(_,_,(x,_)) -> x
@@ -18,11 +20,13 @@ type TransformMatrix =
                                   (m21 * n11 + m22 * n21, m21 * n12 + m22 * n22),
                                   (mx * n11 + my * n21 + nx, mx * n12 + my * n22 + ny))
 
+[<ReflectedDefinition>]
 module Transforms =
     let rotate alpha = TransformMatrix((cos alpha, sin alpha), (-sin alpha, cos alpha), (0.0, 0.0))
     let translate (x, y) = TransformMatrix((1.0, 0.0), (0.0, 1.0), (x, y))
     let scale ratio = TransformMatrix((ratio, 0.0), (0.0, ratio), (0.0, 0.0))
 
+[<ReflectedDefinition>]
 type RefSpace = { transform:TransformMatrix; z:float } with
     static member Origin = { transform = Transforms.translate (0.0, 0.0); z = 0.0 }
     static member At(x, y) = { transform = Transforms.translate (x, y); z = 0.0 }
@@ -31,6 +35,7 @@ type RefSpace = { transform:TransformMatrix; z:float } with
     member this.x = this.transform.x
     member this.y = this.transform.y
 
+[<ReflectedDefinition>]
 type Color = { Alpha:float; R: float; G: float; B: float} with
     static member Transparent = { Alpha = 0.0; R = 1.0; G = 1.0; B = 1.0 }
     static member White =       { Alpha = 1.0; R = 1.0; G = 1.0; B = 1.0 }
@@ -39,6 +44,7 @@ type Color = { Alpha:float; R: float; G: float; B: float} with
     static member Green =       { Alpha = 1.0; R = 0.0; G = 1.0; B = 0.0 }
     static member Blue =        { Alpha = 1.0; R = 0.0; G = 0.0; B = 1.0 }
 
+[<ReflectedDefinition>]
 type Pen = { Color:Color; Thickness:float } with
     static member White = { Color = Color.White; Thickness = 1.0 }
     static member Black = { Color = Color.Black; Thickness = 1.0 }
@@ -46,6 +52,7 @@ type Pen = { Color:Color; Thickness:float } with
     static member Green = { Color = Color.Green; Thickness = 1.0 }
     static member Blue =  { Color = Color.Blue; Thickness = 1.0 }
 
+[<ReflectedDefinition>]
 type Brush = { Color:Color } with
     static member White = { Color = Color.White }
     static member Black = { Color = Color.Black }
@@ -53,14 +60,17 @@ type Brush = { Color:Color } with
     static member Green = { Color = Color.Green }
     static member Blue =  { Color = Color.Blue }
 
+[<ReflectedDefinition>]
 type ClosedShape =
     | Rectangle of Size:Vector
     | Ellipse of Size:Vector
 
+[<ReflectedDefinition>]
 type Path =
     | Line of Vector:Vector
     | Bezier of Vector:Vector * tangent1:Vector * tangent2:Vector
 
+[<ReflectedDefinition>]
 type DrawType =
     | Contour of Pen
     | Fill of Brush
@@ -68,6 +78,7 @@ type DrawType =
     with member x.Pen = match x with | Contour(p) | ContourAndFill(p, _) -> Some p | _ -> None
          member x.Brush = match x with | Fill(b) | ContourAndFill(_, b) -> Some b | _ -> None
 
+[<ReflectedDefinition>]
 type Shape =
     | ClosedShape of ClosedShape * DrawType
     | Path of Path * Pen
