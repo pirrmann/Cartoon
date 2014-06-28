@@ -56,6 +56,7 @@
     <Compile Include="Cartoon.fs" />
     <Compile Include="Builders.fs" />
     <Compile Include="Dsl.fs" />
+    <Compile Include="SampleClips.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

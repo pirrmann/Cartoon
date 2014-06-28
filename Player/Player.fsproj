@@ -52,7 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Drawer.fs" />
-    <Compile Include="SampleClips.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
   </ItemGroup>

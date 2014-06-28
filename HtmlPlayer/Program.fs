@@ -27,8 +27,22 @@ let drawShape (ctx:CanvasRenderingContext2D) (space:RefSpace, shape:Shape) =
                 ctx.lineWidth <- pen.Thickness
                 ctx.strokeRect(0.0, 0.0, width, height))
         | Ellipse(Vector(width, height)) ->
+            let x = -width / 2.0
+            let y = -height / 2.0
+            let kappa = 0.5522848
+            let ox = (width / 2.0) * kappa  // control point offset horizontal
+            let oy = (height / 2.0) * kappa // control point offset vertical
+            let xe = x + width              // x-end
+            let ye = y + height             // y-end
+            let xm = x + width / 2.0        // x-middle
+            let ym = y + height / 2.0       // y-middle
+
             ctx.beginPath()
-            ctx.arc(0.0, 0.0, width / 2.0, 0.0, 2.0 * System.Math.PI)
+            ctx.moveTo(x, ym);
+            ctx.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
+            ctx.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
+            ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+            ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
             ctx.closePath()
             drawType.Brush |> Option.iter (fun brush ->
                 ctx.fillStyle <- brush.Color |> toCanvasColor
@@ -55,33 +69,32 @@ let drawShape (ctx:CanvasRenderingContext2D) (space:RefSpace, shape:Shape) =
             ctx.stroke()
 
 let draw (ctx:CanvasRenderingContext2D) (space, frame) =
-    ctx.clearRect(0.0, 0.0, 640.0, 480.0)
+    ctx.setTransform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
+    ctx.fillStyle <- "rgb(255,255,255)"
+    ctx.fillRect (0.0, 0.0, 640.0, 480.0);
+    ctx.strokeStyle <- "rgb(0,0,0)"
+    ctx.lineWidth <- 1.0
+    ctx.strokeRect (0.0, 0.0, 640.0, 480.0);
     for anchor, shape in frame |> Seq.sortBy (fun (s, _) -> s.z) do
     (space + anchor, shape) |> drawShape ctx
 
-let play (ctx:CanvasRenderingContext2D) (clip:Clip) =
-    match clip.GetFrame() with
-    | Some(space, frame) ->
-        draw ctx (space, frame)
-    | None -> ()
-
-open Builders
-open Dsl
-
-let testScene = shapes {
-    yield rectangle (100.0, 100.0) |> withContour Pen.Blue |> at origin
-    yield ellipse (100.0, 100.0) |> withContourAndFill ({Pen.Black with Thickness = 5.0}, Brush.Red) |> at (-50.0, -50.0)
-    yield line (0.0, 0.0) (100.0, 100.0) |> withPen Pen.Green
-    yield bezier (0.0, 0.0) (100.0, 100.0) (0.0, 50.0) (0.0, -50.0) |> withPen { Pen.Red with Thickness = 3.0 }
-    }
-
-let testClip = Frame(RefSpace.Origin, testScene)
+let rec play (ctx:CanvasRenderingContext2D) (clip:Clip) =
+    async { 
+        match clip.GetFrame() with
+        | Some(space, frame) ->
+            draw ctx (space, frame)
+            do! Async.Sleep(42)
+            match clip.GetNext() with
+            | Some nextClip ->
+                do! play ctx nextClip
+            | None -> ()            
+        | None -> () }
 
 let main () =
    let canvas = Globals.document.getElementsByTagName_canvas().[0]
    canvas.width <- 640.
    canvas.height <- 480.
    let ctx = canvas.getContext_2d()
-   play ctx testClip
+   play ctx SampleClips.test4 |> Async.StartImmediate
 
 do Runtime.Run(directory="Web")
