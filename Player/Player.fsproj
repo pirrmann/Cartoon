@@ -56,6 +56,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Cartoon.Samples\Cartoon.Samples.fsproj">
+      <Name>Cartoon.Samples</Name>
+      <Project>{6bd099b1-3740-4b8a-99d2-5fdd128475fa}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Cartoon\Cartoon.fsproj">
       <Name>Cartoon</Name>
       <Project>{157d3322-44f0-4227-922e-57bde3c82af1}</Project>

@@ -78,23 +78,19 @@ let draw (ctx:CanvasRenderingContext2D) (space, frame) =
     for anchor, shape in frame |> Seq.sortBy (fun (s, _) -> s.z) do
     (space + anchor, shape) |> drawShape ctx
 
-let rec play (ctx:CanvasRenderingContext2D) (clip:Clip) =
-    async { 
-        match clip.GetFrame() with
-        | Some(space, frame) ->
-            draw ctx (space, frame)
-            do! Async.Sleep(42)
-            match clip.GetNext() with
-            | Some nextClip ->
-                do! play ctx nextClip
-            | None -> ()            
-        | None -> () }
-
 let main () =
-   let canvas = Globals.document.getElementsByTagName_canvas().[0]
-   canvas.width <- 640.
-   canvas.height <- 480.
-   let ctx = canvas.getContext_2d()
-   play ctx SampleClips.test4 |> Async.StartImmediate
+    let cartoon = SampleClips.test4
+
+    let canvas = Globals.document.getElementsByTagName_canvas().[0]
+    canvas.width <- 640.
+    canvas.height <- 480.
+    let ctx = canvas.getContext_2d()
+
+    let startPlaying () = Player.play (draw ctx) cartoon |> Async.StartImmediate
+
+    let restartButton = Globals.document.getElementsByTagName_input().[0]
+    restartButton.onclick <- System.Func<MouseEvent, obj>(fun e -> startPlaying(); null)
+
+    startPlaying()
 
 do Runtime.Run(directory="Web")

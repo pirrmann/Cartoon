@@ -50,15 +50,9 @@ let drawShape (graphics:Graphics) (space:RefSpace, shape:Shape) =
     graphics.ResetTransform()
 
 let draw (graphics:Graphics) (space, frame) =
-    graphics.Clear(Color.White)
+    use image = new Bitmap(640, 480, graphics)
+    use gDraw = Graphics.FromImage(image)
+    gDraw.Clear(Color.White)
     for anchor, shape in frame |> Seq.sortBy (fun (s, _) -> s.z) do
-    (space + anchor, shape) |> drawShape graphics
-
-let play (graphics:Graphics) (clip:Clip) =
-    match clip.GetFrame() with
-    | Some(space, frame) ->
-        use image = new Bitmap(640, 480, graphics)
-        use g2 = Graphics.FromImage(image)
-        draw g2 (space, frame)
-        graphics.DrawImage(image, 0, 0)
-    | None -> ()
+        (space + anchor, shape) |> drawShape gDraw
+    graphics.DrawImage(image, 0, 0)

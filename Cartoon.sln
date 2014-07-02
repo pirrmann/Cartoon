@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9CD99E
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Cartoon.Samples", "Cartoon.Samples\Cartoon.Samples.fsproj", "{6BD099B1-3740-4B8A-99D2-5FDD128475FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,10 @@ Global
 		{1D84A8E8-4138-4737-91F5-A39F6C57312B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D84A8E8-4138-4737-91F5-A39F6C57312B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D84A8E8-4138-4737-91F5-A39F6C57312B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BD099B1-3740-4B8A-99D2-5FDD128475FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BD099B1-3740-4B8A-99D2-5FDD128475FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BD099B1-3740-4B8A-99D2-5FDD128475FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BD099B1-3740-4B8A-99D2-5FDD128475FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

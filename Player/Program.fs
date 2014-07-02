@@ -9,7 +9,7 @@ let cartoon = FCartoon.SampleClips.test4
 [<EntryPoint>]
 [<STAThread>]
 let main argv = 
-    let c = ref(Some(cartoon))
+    let c = cartoon
 
     let w = new Form()
     w.Text <- "Cartoon test"
@@ -29,24 +29,18 @@ let main argv =
     w.Controls.Add(restartButton)
     w.Controls.Add(canvas)
 
+    let graphics = canvas.CreateGraphics()
+
+    let startPlaying () =
+        FCartoon.Player.play (Drawer.draw graphics) c |> Async.StartImmediate
+
     let onRestartClick (o:Object) (e:EventArgs) =
-        c := Some(cartoon)
+        Async.CancelDefaultToken()
+        startPlaying()
 
     restartButton.Click.AddHandler(new EventHandler(onRestartClick))
 
-    let graphics = canvas.CreateGraphics()
-
-    let updatePicture (o:Object) (e:EventArgs) =
-        match !c with
-        | Some(c') -> play graphics c'
-                      c := c'.GetNext()
-        | _ -> ()
-
-    let timer = new Timer()
-    timer.Interval <- 42
-    timer.Tick.AddHandler(new EventHandler(updatePicture))
-    timer.Enabled <- true
-
+    startPlaying()
     Application.Run(w)
 
     0 // return an integer exit code
