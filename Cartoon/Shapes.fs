@@ -36,29 +36,13 @@ type RefSpace = { transform:TransformMatrix; z:float } with
     member this.y = this.transform.y
 
 [<ReflectedDefinition>]
-type Color = { Alpha:float; R: float; G: float; B: float} with
-    static member Transparent = { Alpha = 0.0; R = 1.0; G = 1.0; B = 1.0 }
-    static member White =       { Alpha = 1.0; R = 1.0; G = 1.0; B = 1.0 }
-    static member Black =       { Alpha = 1.0; R = 0.0; G = 0.0; B = 0.0 }
-    static member Red =         { Alpha = 1.0; R = 1.0; G = 0.0; B = 0.0 }
-    static member Green =       { Alpha = 1.0; R = 0.0; G = 1.0; B = 0.0 }
-    static member Blue =        { Alpha = 1.0; R = 0.0; G = 0.0; B = 1.0 }
+type Color = { Alpha:float; R: float; G: float; B: float}
 
 [<ReflectedDefinition>]
-type Pen = { Color:Color; Thickness:float } with
-    static member White = { Color = Color.White; Thickness = 1.0 }
-    static member Black = { Color = Color.Black; Thickness = 1.0 }
-    static member Red =   { Color = Color.Red; Thickness = 1.0 }
-    static member Green = { Color = Color.Green; Thickness = 1.0 }
-    static member Blue =  { Color = Color.Blue; Thickness = 1.0 }
+type Pen = { Color:Color; Thickness:float }
 
 [<ReflectedDefinition>]
-type Brush = { Color:Color } with
-    static member White = { Color = Color.White }
-    static member Black = { Color = Color.Black }
-    static member Red =   { Color = Color.Red }
-    static member Green = { Color = Color.Green }
-    static member Blue =  { Color = Color.Blue }
+type Brush = { Color:Color }
 
 [<ReflectedDefinition>]
 type Path =

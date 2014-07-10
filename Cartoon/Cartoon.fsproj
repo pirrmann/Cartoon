@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="LazyList.fs" />
     <Compile Include="Shapes.fs" />
+    <Compile Include="Colors.fs" />
     <Compile Include="Cartoon.fs" />
     <Compile Include="Player.fs" />
     <Compile Include="Builders.fs" />

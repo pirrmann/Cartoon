@@ -6,9 +6,9 @@ module SampleClips =
     open LazyList
     open Builders
 
-    let scene1 = shapes { yield! [RefSpace.Origin, ClosedShape(Rectangle(Vector(10.0, 10.0)), Fill Brush.Blue)
-                                  RefSpace.At(8.0, 60.0), ClosedShape(Ellipse(Vector(16.0, 8.0)), Fill Brush.Red)
-                                  RefSpace.At(8.0, 60.0), ClosedShape(Ellipse(Vector(8.0, 16.0)), Fill Brush.Red)] }
+    let scene1 = shapes { yield! [RefSpace.Origin, ClosedShape(Rectangle(Vector(10.0, 10.0)), Fill Brushes.Blue)
+                                  RefSpace.At(8.0, 60.0), ClosedShape(Ellipse(Vector(16.0, 8.0)), Fill Brushes.Red)
+                                  RefSpace.At(8.0, 60.0), ClosedShape(Ellipse(Vector(8.0, 16.0)), Fill Brushes.Red)] }
 
     let clip1 = clips { yield RefSpace.At(100.0, 100.0), scene1
                         yield RefSpace.At(125.0, 100.0), scene1
@@ -45,8 +45,8 @@ module SampleClips =
 
     let rects =
         [
-            RefSpace.Origin, (ClosedShape(Rectangle(Vector(200.0, 100.0)), Contour Pen.Red))
-            RefSpace.At(100.0, 0.0), (ClosedShape(Rectangle(Vector(200.0, 100.0)), Contour Pen.Blue))
+            RefSpace.Origin, (ClosedShape(Rectangle(Vector(200.0, 100.0)), Contour Pens.Red))
+            RefSpace.At(100.0, 0.0), (ClosedShape(Rectangle(Vector(200.0, 100.0)), Contour Pens.Blue))
         ]
 
     let testRotate =
@@ -61,16 +61,16 @@ module SampleClips =
         clips {
             yield RefSpace.Origin,
                   shapes {
-                    yield RefSpace.Origin, ClosedShape(Ellipse(Vector(300.0, 300.0)), Contour Pen.Red)
-                    yield RefSpace.At(-50.0, -230.0), ClosedShape(Rectangle(Vector(100.0, 100.0)), Fill Brush.Black)
-                    yield RefSpace.At(0.0, -130.0), ClosedShape(Ellipse(Vector(150.0, 50.0)), Fill Brush.Black)
-                    yield RefSpace.At(50.0, -50.0), ClosedShape(Ellipse(Vector(40.0, 40.0)), Fill Brush.Blue)
-                    yield RefSpace.At(-50.0, -50.0), ClosedShape(Ellipse(Vector(80.0, 80.0)), Fill Brush.Blue)
-                    yield RefSpace.At(10.0, -20.0), Path(Bezier(Vector(0.0, 40.0), Vector(-30.0, 30.0), Vector(-15.0, 15.0)), { Pen.Red with Thickness = 5.0 }) }
+                    yield RefSpace.Origin, ClosedShape(Ellipse(Vector(300.0, 300.0)), Contour Pens.Red)
+                    yield RefSpace.At(-50.0, -230.0), ClosedShape(Rectangle(Vector(100.0, 100.0)), Fill Brushes.Black)
+                    yield RefSpace.At(0.0, -130.0), ClosedShape(Ellipse(Vector(150.0, 50.0)), Fill Brushes.Black)
+                    yield RefSpace.At(50.0, -50.0), ClosedShape(Ellipse(Vector(40.0, 40.0)), Fill Brushes.Blue)
+                    yield RefSpace.At(-50.0, -50.0), ClosedShape(Ellipse(Vector(80.0, 80.0)), Fill Brushes.Blue)
+                    yield RefSpace.At(10.0, -20.0), Path(Bezier(Vector(0.0, 40.0), Vector(-30.0, 30.0), Vector(-15.0, 15.0)), { Pens.Red with Thickness = 5.0 }) }
             yield! Clip(
                         RefSpace.At(0.0, 50.0),
                         lazylist { for i in 10 .. 40 do
-                                   yield Frame(RefSpace.At(-50.0, 0.0), [RefSpace.Origin, Path((Bezier(Vector(100.0, 0.0), Vector(float i, float i), Vector(float (-i), float i)), { Pen.Green with Thickness = 5.0 }))]) } |> eval |> holdOnLast)
+                                   yield Frame(RefSpace.At(-50.0, 0.0), [RefSpace.Origin, Path((Bezier(Vector(100.0, 0.0), Vector(float i, float i), Vector(float (-i), float i)), { Pens.Green with Thickness = 5.0 }))]) } |> eval |> holdOnLast)
         }
 
     let test4 =
@@ -91,20 +91,20 @@ module SampleClips =
     open Dsl
 
     let scene2 = shapes {
-        yield rectangle (100.0, 100.0) |> at origin |> withContour Pen.Blue
-        yield ellipse (100.0, 100.0) |> at (-50.0, -50.0) |> withContourAndFill ({Pen.Black with Thickness = 5.0}, Brush.Red)
-        yield line (0.0, 0.0) (100.0, 100.0) |> withPen Pen.Green
-        yield bezier (0.0, 0.0) (100.0, 100.0) (0.0, 50.0) (0.0, -50.0) |> withPen { Pen.Red with Thickness = 3.0 }
+        yield rectangle (100.0, 100.0) |> at origin |> withContour Pens.Blue
+        yield ellipse (100.0, 100.0) |> at (-50.0, -50.0) |> withContourAndFill ({Pens.Black with Thickness = 5.0}, Brushes.Red)
+        yield line (0.0, 0.0) (100.0, 100.0) |> withPen Pens.Green
+        yield bezier (0.0, 0.0) (100.0, 100.0) (0.0, 50.0) (0.0, -50.0) |> withPen { Pens.Red with Thickness = 3.0 }
         }
 
     let test5 = scene2 |> at origin |> Frame
 
     let hearts = shapes {
         yield [ bezierTo (0.0, -100.0) (-100.0, -100.0) (-10.0, -75.0)
-                bezierTo (0.0, 100.0) (10.0, -75.0) (100.0, -100.0) ] |> toPath |> at origin |> withPen Pen.Red 
+                bezierTo (0.0, 100.0) (10.0, -75.0) (100.0, -100.0) ] |> toPath |> at origin |> withPen Pens.Red 
         yield [ bezierTo (10.0, -100.0) (-100.0, -100.0) (-10.0, -75.0)
                 bezierTo (10.0, 100.0) (10.0, -75.0) (100.0, -100.0)
-                bezierTo (-20.0, 0.0) (-10.0, 10.0) (10.0, 10.0) ] |> toClosedPath |> at (-200.0, 0.0) |> withContourAndFill ({Pen.Red with Thickness = 3.0}, Brush.Black)
+                bezierTo (-20.0, 0.0) (-10.0, 10.0) (10.0, 10.0) ] |> toClosedPath |> at (-200.0, 0.0) |> withContourAndFill ({Pens.Red with Thickness = 3.0}, Brushes.Black)
     }
 
     let test6 = hearts |> at origin |> Frame
