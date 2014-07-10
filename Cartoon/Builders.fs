@@ -13,9 +13,6 @@ module Builders =
         member x.Zero() = []
         member x.Yield(shape:RefSpace * Shape) = [shape]
         member x.YieldFrom(shapes:Shapes) = shapes
-        member x.YieldFrom(c:Clip) = match c.GetFrame() with
-                                     | Some(space, f) -> f |> List.map (fun (relativeSpace, s) -> space + relativeSpace, s)
-                                     | None -> []
         member x.Delay(f) = f()
         member x.Combine(f1, f2) = f1 @ f2
 

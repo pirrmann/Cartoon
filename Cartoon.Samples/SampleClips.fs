@@ -91,29 +91,20 @@ module SampleClips =
     open Dsl
 
     let scene2 = shapes {
-        yield rectangle (100.0, 100.0) |> withContour Pen.Blue |> at origin
-        yield ellipse (100.0, 100.0) |> withContourAndFill ({Pen.Black with Thickness = 5.0}, Brush.Red) |> at (-50.0, -50.0)
+        yield rectangle (100.0, 100.0) |> at origin |> withContour Pen.Blue
+        yield ellipse (100.0, 100.0) |> at (-50.0, -50.0) |> withContourAndFill ({Pen.Black with Thickness = 5.0}, Brush.Red)
         yield line (0.0, 0.0) (100.0, 100.0) |> withPen Pen.Green
         yield bezier (0.0, 0.0) (100.0, 100.0) (0.0, 50.0) (0.0, -50.0) |> withPen { Pen.Red with Thickness = 3.0 }
         }
 
-    let test5 = Frame(RefSpace.Origin, scene2)
+    let test5 = scene2 |> at origin |> Frame
 
     let hearts = shapes {
-        yield Path(
-                CompositePath(
-                  [
-                    Bezier(Vector(0.0, -100.0), Vector(-100.0, -100.0), Vector(-10.0, -75.0))
-                    Bezier(Vector(0.0, 100.0), Vector(10.0, -75.0), Vector(100.0, -100.0))
-                  ]), Pen.Red) |> at origin
-        yield ClosedShape(
-                ClosedPath(
-                  CompositePath(
-                    [
-                      Bezier(Vector(10.0, -100.0), Vector(-100.0, -100.0), Vector(-10.0, -75.0))
-                      Bezier(Vector(10.0, 100.0), Vector(10.0, -75.0), Vector(100.0, -100.0))
-                      Bezier(Vector(-20.0, 0.0), Vector(-10.0, 10.0), Vector(10.0, 10.0))
-                    ])), DrawType.ContourAndFill({Pen.Red with Thickness = 3.0}, Brush.Black)) |> at (-200.0, 0.0)
+        yield [ bezierTo (0.0, -100.0) (-100.0, -100.0) (-10.0, -75.0)
+                bezierTo (0.0, 100.0) (10.0, -75.0) (100.0, -100.0) ] |> toPath |> at origin |> withPen Pen.Red 
+        yield [ bezierTo (10.0, -100.0) (-100.0, -100.0) (-10.0, -75.0)
+                bezierTo (10.0, 100.0) (10.0, -75.0) (100.0, -100.0)
+                bezierTo (-20.0, 0.0) (-10.0, 10.0) (10.0, 10.0) ] |> toClosedPath |> at (-200.0, 0.0) |> withContourAndFill ({Pen.Red with Thickness = 3.0}, Brush.Black)
     }
 
-    let test6 = Frame(RefSpace.Origin, hearts)
+    let test6 = hearts |> at origin |> Frame
