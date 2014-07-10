@@ -98,3 +98,22 @@ module SampleClips =
         }
 
     let test5 = Frame(RefSpace.Origin, scene2)
+
+    let hearts = shapes {
+        yield Path(
+                CompositePath(
+                  [
+                    Bezier(Vector(0.0, -100.0), Vector(-100.0, -100.0), Vector(-10.0, -75.0))
+                    Bezier(Vector(0.0, 100.0), Vector(10.0, -75.0), Vector(100.0, -100.0))
+                  ]), Pen.Red) |> at origin
+        yield ClosedShape(
+                ClosedPath(
+                  CompositePath(
+                    [
+                      Bezier(Vector(10.0, -100.0), Vector(-100.0, -100.0), Vector(-10.0, -75.0))
+                      Bezier(Vector(10.0, 100.0), Vector(10.0, -75.0), Vector(100.0, -100.0))
+                      Bezier(Vector(-20.0, 0.0), Vector(-10.0, 10.0), Vector(10.0, 10.0))
+                    ])), DrawType.ContourAndFill({Pen.Red with Thickness = 3.0}, Brush.Black)) |> at (-200.0, 0.0)
+    }
+
+    let test6 = Frame(RefSpace.Origin, hearts)

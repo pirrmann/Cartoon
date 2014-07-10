@@ -15,8 +15,39 @@ let toSystemTransform (TransformMatrix((m11, m12), (m21, m22), (dx, dy))) =
     new System.Drawing.Drawing2D.Matrix(float32 m11, float32 m12, float32 m21, float32 m22, float32 dx, float32 dy)
 
 open System.Drawing
+open System.Drawing.Drawing2D
 
+let toSystemXY (Vector(x, y)) = single x, single y
 let toSystemPoint (Vector(x, y)) = new System.Drawing.PointF(single x, single y)
+
+let toSystemPath path =
+    let offset = ref Vector.Zero
+
+    let rec getPoints path = seq {
+        for segment in path do
+        match segment with
+        | Line v ->
+            offset := !offset + v
+            yield !offset, PathPointType.Line
+        | Bezier (v, t1, t2) ->
+            yield !offset + t1, PathPointType.Bezier
+            offset := !offset + v
+            yield !offset + t2, PathPointType.Bezier
+            yield !offset, PathPointType.Bezier
+        | CompositePath (path) ->
+            yield! getPoints path
+    }
+
+    let allPoints =
+        seq {
+            yield !offset, System.Drawing.Drawing2D.PathPointType.Start
+            yield! getPoints [path]
+        } |> Seq.toArray
+
+    let systemPoints = allPoints |> Array.map (fst >> toSystemPoint)
+    let pathPointTypes = allPoints |> Array.map (snd >> byte)
+
+    new System.Drawing.Drawing2D.GraphicsPath(systemPoints, pathPointTypes)
 
 let drawShape (graphics:Graphics) (space:RefSpace, shape:Shape) =
     graphics.TranslateTransform(320.0f, 240.0f)
@@ -39,13 +70,18 @@ let drawShape (graphics:Graphics) (space:RefSpace, shape:Shape) =
             drawType.Pen |> Option.iter (fun pen ->
                 use pen = pen |> toSystemPen
                 graphics.DrawEllipse(pen, 0.0f, 0.0f, width |> float32, height |> float32))
+        | ClosedPath(path) ->
+            let graphicsPath = path |> toSystemPath 
+            drawType.Brush |> Option.iter (fun brush ->
+                use brush = brush |> toSystemBrush
+                graphics.FillPath(brush, graphicsPath))
+            drawType.Pen |> Option.iter (fun pen ->
+                use pen = pen |> toSystemPen
+                graphics.DrawPath(pen, graphicsPath))
     | Path(path, pen) ->
+        let graphicsPath = path |> toSystemPath 
         use pen = pen |> toSystemPen
-        match path with
-        | Line(Vector(x, y)) ->
-            graphics.DrawLine(pen, 0.0f, 0.0f, x |> float32, y |> float32)
-        | Bezier(p2, t1, t2) ->
-            graphics.DrawBezier(pen, Vector(0.0, 0.0) |> toSystemPoint,  t1 |> toSystemPoint, p2 + t2 |> toSystemPoint, p2 |> toSystemPoint)
+        graphics.DrawPath(pen, graphicsPath)
 
     graphics.ResetTransform()
 

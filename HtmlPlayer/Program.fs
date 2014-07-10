@@ -12,7 +12,43 @@ let toCanvasColor (color:Color) =
     + ([color.R; color.G; color.B; color.Alpha] |> List.map to255color |> String.concat ",")
     + ")"
 
+let toPoint (Vector(x, y)) = x, y
+
 let drawShape (ctx:CanvasRenderingContext2D) (space:RefSpace, shape:Shape) =
+
+    let buildPath path =
+        ctx.beginPath()
+        let offset = ref Vector.Zero
+        ctx.moveTo(0.0, 0.0)
+
+        let rec buildPath' path = seq {
+            for segment in path do
+            match segment with
+            | Line v ->
+                offset := !offset + v
+                yield ctx.lineTo(!offset |> toPoint)
+            | Bezier (v, t1, t2) ->
+                let x, y = !offset |> toPoint
+                offset := !offset + v
+                let x2, y2 = !offset |> toPoint
+                let t1x, t1y = t1 |> toPoint
+                let t2x, t2y = t2 |> toPoint
+                yield ctx.bezierCurveTo(x + t1x, y + t1y, x2 + t2x, y2 + t2y, x2, y2)
+            | CompositePath (path) ->
+                yield! buildPath' path
+        }
+        buildPath' path |> Seq.toArray |> ignore
+
+    let apply (drawType:DrawType) =
+        drawType.Brush |> Option.iter (fun brush ->
+            ctx.fillStyle <- brush.Color |> toCanvasColor
+            ctx.fill())
+        drawType.Pen |> Option.iter (fun pen ->
+            ctx.fillStyle <- pen.Color |> toCanvasColor
+            ctx.strokeStyle <- pen.Color |> toCanvasColor
+            ctx.lineWidth <- pen.Thickness
+            ctx.stroke())
+
     ctx.setTransform(space.transform * (Transforms.translate(320.0, 240.0)) |> toCanvasTransform)
     match shape with
     | ClosedShape(shape, drawType) ->
@@ -44,14 +80,11 @@ let drawShape (ctx:CanvasRenderingContext2D) (space:RefSpace, shape:Shape) =
             ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
             ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
             ctx.closePath()
-            drawType.Brush |> Option.iter (fun brush ->
-                ctx.fillStyle <- brush.Color |> toCanvasColor
-                ctx.fill())
-            drawType.Pen |> Option.iter (fun pen ->
-                ctx.fillStyle <- pen.Color |> toCanvasColor
-                ctx.strokeStyle <- pen.Color |> toCanvasColor
-                ctx.lineWidth <- pen.Thickness
-                ctx.stroke())
+            apply drawType
+        | ClosedPath path ->
+            buildPath [path]
+            ctx.closePath()
+            apply drawType
     | Path(path, pen) ->
         ctx.fillStyle <- pen.Color |> toCanvasColor
         ctx.strokeStyle <- pen.Color |> toCanvasColor
@@ -67,6 +100,9 @@ let drawShape (ctx:CanvasRenderingContext2D) (space:RefSpace, shape:Shape) =
             ctx.moveTo(0.0, 0.0)
             ctx.bezierCurveTo(t1x, t1y, x + t2x, y + t2y, x, y)
             ctx.stroke()
+        | CompositePath(path) ->
+            buildPath path
+            ctx.stroke()
 
 let draw (ctx:CanvasRenderingContext2D) (space, frame) =
     ctx.setTransform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
@@ -79,7 +115,7 @@ let draw (ctx:CanvasRenderingContext2D) (space, frame) =
     (space + anchor, shape) |> drawShape ctx
 
 let main () =
-    let cartoon = SampleClips.test4
+    let cartoon = SampleClips.test6
 
     let canvas = Globals.document.getElementsByTagName_canvas().[0]
     canvas.width <- 640.

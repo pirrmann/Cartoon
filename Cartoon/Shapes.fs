@@ -61,14 +61,20 @@ type Brush = { Color:Color } with
     static member Blue =  { Color = Color.Blue }
 
 [<ReflectedDefinition>]
-type ClosedShape =
-    | Rectangle of Size:Vector
-    | Ellipse of Size:Vector
-
-[<ReflectedDefinition>]
 type Path =
     | Line of Vector:Vector
     | Bezier of Vector:Vector * tangent1:Vector * tangent2:Vector
+    | CompositePath of Path list
+    with member x.End = match x with
+                        | Line v -> v
+                        | Bezier (v, _, _) -> v
+                        | CompositePath path -> path |> List.map (fun p -> p.End) |> List.sum
+
+[<ReflectedDefinition>]
+type ClosedShape =
+    | Rectangle of Size:Vector
+    | Ellipse of Size:Vector
+    | ClosedPath of Path
 
 [<ReflectedDefinition>]
 type DrawType =

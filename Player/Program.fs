@@ -4,7 +4,7 @@ open System.Windows.Forms
 
 open Drawer
 
-let cartoon = FCartoon.SampleClips.test4
+let cartoon = FCartoon.SampleClips.test6
 
 [<EntryPoint>]
 [<STAThread>]
