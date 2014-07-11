@@ -36,6 +36,20 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\Cartoon.XML</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">12</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.Portable.FSharp.Targets" />
+  <ItemGroup>
+    <Compile Include="LazyList.fs" />
+    <Compile Include="Shapes.fs" />
+    <None Include="ColorsGenerator.fsx" />
+    <Compile Include="Colors.fs" />
+    <Compile Include="Cartoon.fs" />
+    <Compile Include="Player.fs" />
+    <Compile Include="Builders.fs" />
+    <Compile Include="Dsl.fs" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
       <Name>FSharp.Core</Name>
@@ -43,19 +57,6 @@
       <HintPath>$(MSBuildExtensionsPath32)\..\Reference Assemblies\Microsoft\FSharp\.NETCore\$(TargetFSharpCoreVersion)\FSharp.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="LazyList.fs" />
-    <Compile Include="Shapes.fs" />
-    <Compile Include="Colors.fs" />
-    <Compile Include="Cartoon.fs" />
-    <Compile Include="Player.fs" />
-    <Compile Include="Builders.fs" />
-    <Compile Include="Dsl.fs" />
-  </ItemGroup>
-  <PropertyGroup>
-    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">12</MinimumVisualStudioVersion>
-  </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.Portable.FSharp.Targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

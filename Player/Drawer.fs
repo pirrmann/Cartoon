@@ -8,7 +8,7 @@ let toSystemColor (color:Color) =
 let toSystemPen (pen:Pen) =
     new System.Drawing.Pen(pen.Color |> toSystemColor, pen.Thickness |> single)
 
-let toSystemBrush (brush:Brush) =
+let toSystemBrush (brush:Brush) =    
     new System.Drawing.SolidBrush(brush.Color |> toSystemColor)
 
 let toSystemTransform (TransformMatrix((m11, m12), (m21, m22), (dx, dy))) =

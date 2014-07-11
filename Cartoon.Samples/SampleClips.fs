@@ -104,7 +104,7 @@ module SampleClips =
                 bezierTo (0.0, 100.0) (10.0, -75.0) (100.0, -100.0) ] |> toPath |> at origin |> withPen Pens.Red 
         yield [ bezierTo (10.0, -100.0) (-100.0, -100.0) (-10.0, -75.0)
                 bezierTo (10.0, 100.0) (10.0, -75.0) (100.0, -100.0)
-                bezierTo (-20.0, 0.0) (-10.0, 10.0) (10.0, 10.0) ] |> toClosedPath |> at (-200.0, 0.0) |> withContourAndFill ({Pens.Red with Thickness = 3.0}, Brushes.Black)
+                bezierTo (-20.0, 0.0) (-10.0, 10.0) (10.0, 10.0) ] |> toClosedPath |> at (-200.0, 0.0) |> withContourAndFill ({Pens.Black with Thickness = 3.0}, Brushes.Pink)
     }
 
     let test6 = hearts |> at origin |> Frame
