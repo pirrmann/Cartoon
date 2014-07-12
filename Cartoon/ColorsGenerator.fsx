@@ -1,13 +1,13 @@
-﻿let colors =
-    [
-    "Transparent", (0.0, 1.0, 1.0, 1.0), false
-    "White", (1.0, 1.0, 1.0, 1.0), true
-    "Black", (1.0, 0.0, 0.0, 0.0), true
-    "Red", (1.0, 1.0, 0.0, 0.0), true
-    "Green", (1.0, 0.0, 1.0, 0.0), true
-    "Blue", (1.0, 0.0, 0.0, 1.0), true
-    "Pink", (1.0, 1.0, 0.0, 0.8), true
-    ]
+﻿let colorType = System.Type.GetType("System.Drawing.Color")
+
+let colors =
+    typeof<System.Drawing.Color>.GetProperties(
+        System.Reflection.BindingFlags.Static ||| System.Reflection.BindingFlags.Public)
+    |> Seq.map(fun m ->
+        let color = m.GetMethod.Invoke(null, [||]) :?> System.Drawing.Color
+        let toRelative x = (double x) / 255.0
+        m.Name, (color.A |> toRelative, color.R |> toRelative, color.G |> toRelative, color.B |> toRelative), color.A <> 0uy)
+    |> Seq.toList
 
 let genLines = seq {
     yield "namespace FCartoon"
