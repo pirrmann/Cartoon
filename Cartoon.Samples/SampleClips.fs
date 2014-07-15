@@ -105,7 +105,16 @@ module SampleClips =
         yield [ bezierTo (10.0, -100.0) (-100.0, -100.0) (-10.0, -75.0)
                 bezierTo (10.0, 100.0) (10.0, -75.0) (100.0, -100.0)
                 bezierTo (-20.0, 0.0) (-10.0, 10.0) (10.0, 10.0) ] |> toClosedPath |> at (-200.0, 0.0) |> withContourAndFill ({Pens.Black with Thickness = 3.0}, Brushes.Pink)
-        yield HollowShape(rectangle (100.0, 100.0), Vector(15.0, 15.0), rectangle (50.0, 50.0)) |> at (-250.0, -150.0) |> withContourAndFill (Pens.Blue, Brushes.BlueViolet)
+        yield
+            HollowShape(
+                HollowShape(
+                    rectangle (100.0, 100.0),
+                    Vector(15.0, 15.0),
+                    rectangle (50.0, 50.0)),
+                Vector(35.0, 35.0),
+                rectangle(50.0, 50.0))
+            |> at (-250.0, -150.0)
+            |> withContourAndFill (Pens.Blue, Brushes.BlueViolet)
     }
 
     let test6 = hearts |> at origin |> Frame

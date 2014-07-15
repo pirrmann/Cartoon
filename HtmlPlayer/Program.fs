@@ -100,10 +100,10 @@ let translate (Vector(dx, dy)) = function
     | LineTo (x, y) -> LineTo (x + dx, y + dy)
     | BezierTo ((cx1, cy1), (cx2, cy2), (x, y)) -> BezierTo ((cx2 + dx, cy2 + dy), (cx1 + dx, cy1 + dy), (x + dx, y + dy))
 
-let getFillPath shape = seq {
+let rec getFillPath shape = seq {
     match shape with
     | HollowShape(s1, offset, s2) ->
-        yield getOuterPath s1
+        yield! getFillPath s1
         yield getOuterPath s2 |> reversePath |> Seq.map (translate offset)
     | _ -> yield getOuterPath shape }
 

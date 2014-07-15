@@ -67,7 +67,7 @@ let rec getRegion shape =
     | HollowShape(s1, Vector(dx, dy), s2) -> 
         let (r1:Region), (r2:Region) = getRegion s1, getRegion s2
         r2.Translate(dx |> float32, dy |> float32)
-        r1.Exclude(r2)
+        r1.Xor(r2)
         r1
     | _ -> new Region(getOuterPath shape)
 
