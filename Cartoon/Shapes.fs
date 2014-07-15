@@ -59,6 +59,7 @@ type ClosedShape =
     | Rectangle of Size:Vector
     | Ellipse of Size:Vector
     | ClosedPath of Path
+    | HollowShape of ClosedShape * Vector * ClosedShape
 
 [<ReflectedDefinition>]
 type DrawType =

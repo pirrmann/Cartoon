@@ -49,35 +49,41 @@ let toSystemPath path =
 
     new System.Drawing.Drawing2D.GraphicsPath(systemPoints, pathPointTypes)
 
+let rec getOuterPath shape =
+    match shape with
+    | ClosedPath p -> p |> toSystemPath
+    | Rectangle(Vector(width, height)) ->
+        let path = new System.Drawing.Drawing2D.GraphicsPath()
+        path.AddRectangle(new RectangleF(0.0f, 0.0f, width |> float32, height |> float32))
+        path
+    | Ellipse(Vector(width, height)) ->
+        let path = new System.Drawing.Drawing2D.GraphicsPath()
+        path.AddEllipse(new RectangleF(- width/2.0 |> float32, - height/2.0 |> float32, width |> float32, height |> float32))
+        path
+    | HollowShape(s1, _, _) -> getOuterPath s1
+
+let rec getRegion shape =
+    match shape with
+    | HollowShape(s1, Vector(dx, dy), s2) -> 
+        let (r1:Region), (r2:Region) = getRegion s1, getRegion s2
+        r2.Translate(dx |> float32, dy |> float32)
+        r1.Exclude(r2)
+        r1
+    | _ -> new Region(getOuterPath shape)
+
 let drawShape (graphics:Graphics) (space:RefSpace, shape:Shape) =
     graphics.TranslateTransform(320.0f, 240.0f)
     graphics.MultiplyTransform(space.transform |> toSystemTransform)
     match shape with
     | ClosedShape(shape, drawType) ->
-        match shape with
-        | Rectangle(Vector(width, height)) ->
-            drawType.Brush |> Option.iter (fun brush ->
-                use brush = brush |> toSystemBrush
-                graphics.FillRectangle(brush, 0.0f, 0.0f, width |> float32, height |> float32))
-            drawType.Pen |> Option.iter (fun pen ->
-                use pen = pen |> toSystemPen
-                graphics.DrawRectangle(pen, 0.0f, 0.0f, width |> float32, height |> float32))
-        | Ellipse(Vector(width, height)) ->
-            graphics.MultiplyTransform(Transforms.translate (- width/2.0, - height/2.0) |> toSystemTransform)
-            drawType.Brush |> Option.iter (fun brush ->
-                use brush = brush |> toSystemBrush
-                graphics.FillEllipse(brush, 0.0f, 0.0f, width |> float32, height |> float32))
-            drawType.Pen |> Option.iter (fun pen ->
-                use pen = pen |> toSystemPen
-                graphics.DrawEllipse(pen, 0.0f, 0.0f, width |> float32, height |> float32))
-        | ClosedPath(path) ->
-            let graphicsPath = path |> toSystemPath 
-            drawType.Brush |> Option.iter (fun brush ->
-                use brush = brush |> toSystemBrush
-                graphics.FillPath(brush, graphicsPath))
-            drawType.Pen |> Option.iter (fun pen ->
-                use pen = pen |> toSystemPen
-                graphics.DrawPath(pen, graphicsPath))
+        drawType.Brush |> Option.iter (fun brush ->
+            let region = getRegion shape
+            use brush = brush |> toSystemBrush
+            graphics.FillRegion(brush, region))
+        drawType.Pen |> Option.iter (fun pen ->
+            let path = getOuterPath shape
+            use pen = pen |> toSystemPen
+            graphics.DrawPath(pen, path))
     | Path(path, pen) ->
         let graphicsPath = path |> toSystemPath 
         use pen = pen |> toSystemPen
