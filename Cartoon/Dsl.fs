@@ -13,6 +13,7 @@ module Dsl =
     let bezierTo (x, y) (tx1, ty1) (tx2, ty2) = Bezier(Vector(x, y), Vector(tx1, ty1), Vector(tx2, ty2))
     let toPath = CompositePath
     let toClosedPath = CompositePath >> ClosedPath
+    let withHole hole shape = HollowShape(shape, hole)
     let withContour pen (space, shape) = space, ClosedShape(shape, Contour(pen))
     let withFill brush (space, shape) = space, ClosedShape(shape, Fill(brush))
     let withContourAndFill (pen, brush) (space, shape) = space, ClosedShape(shape, ContourAndFill(pen, brush))

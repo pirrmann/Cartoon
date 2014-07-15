@@ -106,13 +106,9 @@ module SampleClips =
                 bezierTo (10.0, 100.0) (10.0, -75.0) (100.0, -100.0)
                 bezierTo (-20.0, 0.0) (-10.0, 10.0) (10.0, 10.0) ] |> toClosedPath |> at (-200.0, 0.0) |> withContourAndFill ({Pens.Black with Thickness = 3.0}, Brushes.Pink)
         yield
-            HollowShape(
-                HollowShape(
-                    rectangle (100.0, 100.0),
-                    Vector(15.0, 15.0),
-                    rectangle (50.0, 50.0)),
-                Vector(35.0, 35.0),
-                rectangle(50.0, 50.0))
+            rectangle (100.0, 100.0)
+            |> withHole (rectangle (40.0, 40.0) |> at (10.0, 10.0))
+            |> withHole (rectangle (40.0, 40.0) |> at (50.0, 50.0))
             |> at (-250.0, -150.0)
             |> withContourAndFill (Pens.Blue, Brushes.BlueViolet)
     }

@@ -74,7 +74,7 @@ let rec getOuterPath shape = seq {
         yield BezierTo ((xm + ox, y), (xe, ym - oy), (xe, ym))
         yield BezierTo ((xe, ym + oy), (xm + ox, ye), (xm, ye))
         yield BezierTo ((xm - ox, ye), (x, ym + oy), (x, ym))
-    | HollowShape(s1, _, _) -> yield! getOuterPath s1 }
+    | HollowShape(s1, _) -> yield! getOuterPath s1 }
 
 let reversePath (pathParts:CanvasPathPart seq) =
     let reversedParts = (MoveTo (0.0, 0.0)) :: (pathParts |> List.ofSeq |> List.rev)
@@ -95,16 +95,18 @@ let reversePath (pathParts:CanvasPathPart seq) =
 
     reverseMap reversedParts
 
-let translate (Vector(dx, dy)) = function
+let apply (transform:TransformMatrix) part =
+    let dx, dy = transform.x, transform.y
+    match part with
     | MoveTo (x, y) -> MoveTo (x + dx, y + dy)
     | LineTo (x, y) -> LineTo (x + dx, y + dy)
     | BezierTo ((cx1, cy1), (cx2, cy2), (x, y)) -> BezierTo ((cx2 + dx, cy2 + dy), (cx1 + dx, cy1 + dy), (x + dx, y + dy))
 
 let rec getFillPath shape = seq {
     match shape with
-    | HollowShape(s1, offset, s2) ->
+    | HollowShape(s1, (refSpace, s2)) ->
         yield! getFillPath s1
-        yield getOuterPath s2 |> reversePath |> Seq.map (translate offset)
+        yield getOuterPath s2 |> reversePath |> Seq.map (apply refSpace.transform)
     | _ -> yield getOuterPath shape }
 
 let walk (ctx:CanvasRenderingContext2D) path =

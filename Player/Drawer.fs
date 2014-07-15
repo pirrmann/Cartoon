@@ -60,13 +60,13 @@ let rec getOuterPath shape =
         let path = new System.Drawing.Drawing2D.GraphicsPath()
         path.AddEllipse(new RectangleF(- width/2.0 |> float32, - height/2.0 |> float32, width |> float32, height |> float32))
         path
-    | HollowShape(s1, _, _) -> getOuterPath s1
+    | HollowShape(s1, _) -> getOuterPath s1
 
 let rec getRegion shape =
     match shape with
-    | HollowShape(s1, Vector(dx, dy), s2) -> 
+    | HollowShape(s1, (refSpace, s2)) -> 
         let (r1:Region), (r2:Region) = getRegion s1, getRegion s2
-        r2.Translate(dx |> float32, dy |> float32)
+        r2.Transform(refSpace.transform |> toSystemTransform)
         r1.Xor(r2)
         r1
     | _ -> new Region(getOuterPath shape)
