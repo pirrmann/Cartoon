@@ -167,3 +167,49 @@ module SampleClips =
                 movingHole
             ])
     
+    let movingBezier =
+        let p1 = ref (Vector(0.0, 0.0))
+        let p2 = ref (Vector(100.0, 50.0))
+        let p3 = ref (Vector(0.0, 100.0))
+        let d1 = ref (Vector(3.0, 2.0))
+        let d2 = ref (Vector(-2.0, 5.0))
+        let d3 = ref (Vector(5.0, -3.0))
+        let t1 = ref (Vector(20.0, -20.0))
+        let t2 = ref (Vector(0.0, 30.0))
+        let t3 = ref (Vector(-20.0, -20.0))
+        let step (d:Vector) (v:Vector) =
+            let x, dx = if v.X + d.X > 640.0 || v.X + d.X < 0.0
+                            then v.X - d.X, -d.X
+                            else v.X + d.X, d.X
+            let y, dy = if v.Y + d.Y > 480.0 || v.Y + d.Y < 0.0
+                            then v.Y - d.Y, -d.Y
+                            else v.Y + d.Y, d.Y
+            Vector(x, y), Vector(dx, dy)
+
+        let rec next () =
+            lazylist {
+                yield
+                    shapes {
+                        yield [ bezierTo (p2.Value.X - p1.Value.X, p2.Value.Y - p1.Value.Y) (t1.Value.X, t1.Value.Y) (-t2.Value.X, -t2.Value.Y)
+                                bezierTo (p3.Value.X - p2.Value.X, p3.Value.Y - p2.Value.Y) (t2.Value.X, t2.Value.Y) (-t3.Value.X, -t3.Value.Y)
+                                bezierTo (p1.Value.X - p3.Value.X, p1.Value.Y - p3.Value.Y) (t3.Value.X, t3.Value.Y) (-t1.Value.X, -t1.Value.Y) ] 
+                              |> toClosedPath
+                              |> at (p1.Value.X, p1.Value.Y)
+                              |> withContourAndFill ({Pens.DarkGreen with Thickness = 3.0}, Brushes.LimeGreen)
+                    } |> at (-320.0, -240.0) |> Frame
+                let p1', d1' = !p1 |> step !d1
+                p1 := p1'
+                d1 := d1'
+                let p2', d2' = !p2 |> step !d2
+                p2 := p2'
+                d2 := d2'
+                let p3', d3' = !p3 |> step !d3
+                p3 := p3'
+                d3 := d3'
+                t1 := Vector(50.0, 50.0)
+                t2 := Vector(-50.0, -50.0)
+                t3 := Vector(50.0, -50.0)
+                yield! next ()
+            }
+
+        next () |> eval |> at origin |> Clip
