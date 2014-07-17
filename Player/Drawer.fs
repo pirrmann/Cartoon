@@ -95,6 +95,7 @@ let draw (graphics:Graphics) (space, frame) =
     use image = new Bitmap(640, 480, graphics)
     use gDraw = Graphics.FromImage(image)
     gDraw.Clear(Color.White)
+    gDraw.SmoothingMode <- SmoothingMode.HighQuality
     for anchor, shape in frame |> Seq.sortBy (fun (s, _) -> s.z) do
         (space + anchor, shape) |> drawShape gDraw
     graphics.DrawImage(image, 0, 0)

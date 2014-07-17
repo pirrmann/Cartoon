@@ -289,6 +289,7 @@ module Pens =
 
 [<ReflectedDefinition>]
 module Brushes =
+   let Solid = { Color = Colors.Transparent }
    let AliceBlue = { Color = Colors.AliceBlue }
    let AntiqueWhite = { Color = Colors.AntiqueWhite }
    let Aqua = { Color = Colors.Aqua }

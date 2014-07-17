@@ -28,6 +28,8 @@ let genLines = seq {
     for (name, _, gen) in colors do
         if gen then
             yield sprintf "   let %s = { Color = Colors.%s }" name name
+        else
+            yield sprintf "   let %s = { Color = Colors.%s }" "Solid" name
 }
 
 System.IO.File.WriteAllLines(

@@ -105,12 +105,65 @@ module SampleClips =
         yield [ bezierTo (10.0, -100.0) (-100.0, -100.0) (-10.0, -75.0)
                 bezierTo (10.0, 100.0) (10.0, -75.0) (100.0, -100.0)
                 bezierTo (-20.0, 0.0) (-10.0, 10.0) (10.0, 10.0) ] |> toClosedPath |> at (-200.0, 0.0) |> withContourAndFill ({Pens.Black with Thickness = 3.0}, Brushes.Pink)
-        yield
-            rectangle (100.0, 100.0)
-            |> withHole (rectangle (40.0, 40.0) |> at (10.0, 10.0))
-            |> withHole (rectangle (40.0, 40.0) |> at (50.0, 50.0))
-            |> at (-250.0, -150.0)
-            |> withContourAndFill (Pens.Blue, Brushes.BlueViolet)
     }
 
-    let test6 = hearts |> at origin |> Frame
+    let gruyere = shapes {
+        let hole1 = rectangle (40.0, 40.0) |> at (10.0, 10.0)
+        yield
+            rectangle (100.0, 100.0)
+            |> withHole hole1
+            |> withHole (rectangle (20.0, 20.0) |> at (68.0, 50.0) |> rotatedBy (Pi / 4.0))
+            |> withHole (ellipse (20.0, 20.0) |> at (25.0, 75.0))
+            |> at origin
+            |> withContourAndFill (Pens.Blue, Brushes.BlueViolet)
+        yield
+            hole1
+            |> withFill {Brushes.Solid with Color = { Colors.Yellow with Alpha = 0.2 }}
+    }
+
+    let movingHole =
+        lazylist {
+            for i in 1..96 do
+            yield
+                shapes {
+                    let hole = (ellipse (90.0 * (1.0 + sin(float i * Pi / 48.0)), 90.0 * (1.0 + sin(float i * Pi / 48.0 + Pi))) |> at (100.0, 100.0)) 
+                    yield
+                        rectangle (200.0, 200.0)
+                        |> withHole hole
+                        |> at origin
+                        |> withContourAndFill (Pens.Black, Brushes.DarkGray)
+                    yield
+                        hole
+                        |> withContourAndFill (Pens.Black, { Brushes.Aqua with Color = { Colors.Aqua with Alpha = 0.2 } })
+                } |> at (-100.0, -100.0) |> Frame
+        } |> LazyList.repeat |> eval |> at origin |> withZ 3.0 |> Clip
+        |> transformWith
+            (lazylist {
+                for i in 1..36 do
+                    yield RefSpace.At(20.0 * cos(float i * Pi / 18.0), 20.0 * sin(float i * Pi / 18.0))
+             } |> LazyList.repeat)
+        |> transformWith
+            (lazylist {
+                for i in 1..100 do
+                    yield RefSpace.At(0.0, float i)
+                for i in 1..100 do
+                    yield RefSpace.At(float i, 100.0)
+                for i in 1..100 do
+                    yield RefSpace.At(100.0, 100.0 - float i)
+                for i in 1..100 do
+                    yield RefSpace.At(100.0 - float i, 0.0)
+             } |> LazyList.repeat)
+
+    let test6 =
+        Clips(
+            RefSpace.Origin,
+            [
+                hearts |> at origin |> withZ 1.0 |> Frame
+                gruyere |> at origin |> withZ 2.0 |> Frame |> transformWith
+                    (lazylist {
+                        for i in 1..48 do
+                        yield { RefSpace.Origin with transform = Transforms.rotate(Pi / 4.0 + sin (float i * Pi / 12.0)) * Transforms.translate(-190.0, -120.0) }
+                     } |> LazyList.repeat)
+                movingHole
+            ])
+    

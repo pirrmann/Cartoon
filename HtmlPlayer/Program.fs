@@ -6,13 +6,26 @@ open FunScript
 open FunScript.TypeScript
 
 let toCanvasTransform (TransformMatrix((m11, m12), (m21, m22), (dx, dy)))= m11, m12, m21, m22, dx, dy
+
+let to255color (c:float) =
+    let i = (c * 255.0) |> System.Math.Round
+    i.ToString()
+
 let toCanvasColor (color:Color) =
-    let to255color (c:float) =
-        let i = (c * 255.0) |> System.Math.Round
-        i.ToString()
-    "rgba("
-    + ([color.R; color.G; color.B; color.Alpha] |> List.map to255color |> String.concat ",")
+    "rgb("
+    + ([color.R; color.G; color.B] |> List.map to255color |> String.concat ",")
     + ")"
+
+let setBrush (brush:Brush) (ctx:CanvasRenderingContext2D) =
+    ctx.fillStyle <- brush.Color |> toCanvasColor
+    ctx.globalAlpha <- brush.Color.Alpha
+
+let setPen (pen:Pen) (ctx:CanvasRenderingContext2D) =
+    ctx.fillStyle <- pen.Color |> toCanvasColor
+    ctx.strokeStyle <- pen.Color |> toCanvasColor
+    ctx.globalAlpha <- pen.Color.Alpha
+    ctx.lineWidth <- pen.Thickness
+
 
 let toPoint (Vector(x, y)) = x, y
 
@@ -122,7 +135,7 @@ let drawShape (ctx:CanvasRenderingContext2D) (space:RefSpace, shape:Shape) =
     | ClosedShape(shape, drawType) ->
         drawType.Brush |> Option.iter (fun brush ->
             ctx.save()
-            ctx.fillStyle <- brush.Color |> toCanvasColor
+            ctx |> setBrush brush
             ctx.beginPath()
             for path in shape |> getFillPath do
                 path |> walk ctx 
@@ -131,9 +144,7 @@ let drawShape (ctx:CanvasRenderingContext2D) (space:RefSpace, shape:Shape) =
             ctx.restore())
         drawType.Pen |> Option.iter (fun pen ->
             ctx.save()
-            ctx.fillStyle <- pen.Color |> toCanvasColor
-            ctx.strokeStyle <- pen.Color |> toCanvasColor
-            ctx.lineWidth <- pen.Thickness
+            ctx |> setPen pen
             ctx.beginPath()
             shape |> getOuterPath |> walk ctx 
             ctx.closePath()
@@ -141,9 +152,7 @@ let drawShape (ctx:CanvasRenderingContext2D) (space:RefSpace, shape:Shape) =
             ctx.restore())
     | Path(path, pen) ->
         ctx.save()
-        ctx.fillStyle <- pen.Color |> toCanvasColor
-        ctx.strokeStyle <- pen.Color |> toCanvasColor
-        ctx.lineWidth <- pen.Thickness
+        ctx |> setPen pen
         ctx.beginPath()
         buildPath path |> walk ctx 
         ctx.stroke()
@@ -155,6 +164,7 @@ let draw (ctx:CanvasRenderingContext2D) (space, frame) =
     ctx.fillRect (0.0, 0.0, 640.0, 480.0)
     ctx.strokeStyle <- "rgb(0,0,0)"
     ctx.lineWidth <- 1.0
+    ctx.globalAlpha <- 1.0
     ctx.strokeRect (0.0, 0.0, 640.0, 480.0)
     for anchor, shape in frame |> Seq.sortBy (fun (s, _) -> s.z) do
     (space + anchor, shape) |> drawShape ctx

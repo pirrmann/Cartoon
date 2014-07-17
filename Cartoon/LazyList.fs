@@ -45,7 +45,7 @@ module LazyList =
 
     let eval (x:Lazy<'T>) = x.Value
 
-    let rec repeat loop = lazy LazyConcat(eval loop, loop)
+    let rec repeat loop = lazy LazyConcat(eval loop, repeat loop)
 
     let rec holdOnLast (ll:LazyList<'a>) =
         match ll.Head with

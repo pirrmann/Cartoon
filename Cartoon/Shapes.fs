@@ -3,10 +3,12 @@
 open Microsoft.FSharp.Math
 
 [<ReflectedDefinition>]
-type Vector = Vector of x:float * y:float
-    with static member Zero = Vector (0.0, 0.0)
-            static member (+) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 + x2, y1 + y2)
-            static member (-) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 - x2, y1 - y2)
+type Vector = Vector of float * float with
+    static member Zero = Vector (0.0, 0.0)
+    static member (+) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 + x2, y1 + y2)
+    static member (-) (Vector(x1, y1) , Vector(x2, y2)) = Vector(x1 - x2, y1 - y2)
+    member this.X = match this with | Vector(x, _) -> x
+    member this.Y = match this with | Vector(_, y) -> y
 
 [<ReflectedDefinition>]
 type TransformMatrix =
