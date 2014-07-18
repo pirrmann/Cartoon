@@ -18,9 +18,6 @@ module SampleClips =
     let movie1 = clip1 |> transformWith (lazylist { for i in 1..10 do
                                                     yield RefSpace.At(100.0, float i) })
 
-    let rec repeat s = seq { yield! s 
-                             yield! repeat s }
-
     let movie2 =
         clip1
         |> transformWith
@@ -30,7 +27,7 @@ module SampleClips =
                      yield! lazylist { for i in 1..25 do yield RefSpace.At(25.0, 25.0 - float i) }
                      yield! lazylist { for i in 1..25 do yield RefSpace.At(25.0 - float i, 0.0) }
                  }
-             |> FCartoon.LazyList.repeat) 
+             |> repeat) 
 
     let clip3 = clips { yield! clip1
                         yield! movie2 }
@@ -213,3 +210,16 @@ module SampleClips =
             }
 
         next () |> eval |> at origin |> Clip
+
+    let test7 =
+        shapes {
+            yield rectangle (100.0, 100.0) |> at (-50.0, -50.0) |> withContour Pens.Blue
+        } |> at (-100.0, -100.0) |> Frame
+        |> transformWith (
+            (
+             (25 |> framesOf (slide (50.0, 50.0)))
+             |> followedBy (50 |> framesOf (slide (-50.0, -50.0)))
+             |> followedBy (25 |> framesOf (slide (100.0, -50.0)))
+             |> followedBy (50 |> framesOf (slide (-100.0, 50.0)))
+            ) |> repeat
+           )

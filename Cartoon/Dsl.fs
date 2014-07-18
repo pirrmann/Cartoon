@@ -24,3 +24,23 @@ module Dsl =
     let origin = (0.0, 0.0)
 
     let Pi = System.Math.PI
+
+    open LazyList
+
+    let slide (x, y) frames =
+        lazylist {
+            for i in 0..frames-1 do
+            let ratio = float  i / float frames
+            yield { transform = Transforms.translate (x * ratio, y * ratio); z = 0.0 }
+        }
+
+    let framesOf generator frames =
+        generator frames
+
+    let followedBy t2 t1 = lazy (
+        let t1' = LazyList.eval t1
+        let t2' =
+            match t1' |> LazyList.last with
+            | Some (l:RefSpace) -> lazy (LazyList.eval t2 |> LazyList.map ((+) l))
+            | None -> t2
+        LazyList.LazyConcat(t1', t2'))

@@ -55,6 +55,14 @@ module LazyList =
             | Empty -> LazyConcat(ll, lazy holdOnLast ll)
             | _ -> LazyCons(head, lazy holdOnLast (eval tail))
 
+    let rec last (ll:LazyList<'a>) =
+        match ll.Head with
+        | None -> None
+        | Some(head, tail) ->
+            match eval tail with
+            | Empty -> Some head
+            | _ -> last (eval tail)  
+
     type LazyListBuilder() =
         let concat (x:LazyList<'T>) (y:Lazy<LazyList<'T>>) =
             match x with
