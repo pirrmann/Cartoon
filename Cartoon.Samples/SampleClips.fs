@@ -6,9 +6,9 @@ module SampleClips =
     open LazyList
     open Builders
 
-    let scene1 = shapes { yield! [RefSpace.Origin, ClosedShape(Rectangle(Vector(10.0, 10.0)), Fill Brushes.Blue)
-                                  RefSpace.At(8.0, 60.0), ClosedShape(Ellipse(Vector(16.0, 8.0)), Fill Brushes.Red)
-                                  RefSpace.At(8.0, 60.0), ClosedShape(Ellipse(Vector(8.0, 16.0)), Fill Brushes.Red)] }
+    let scene1 = shapes { yield RefSpace.Origin, ClosedShape(Rectangle(Vector(10.0, 10.0)), Fill Brushes.Blue)
+                          yield RefSpace.At(8.0, 60.0), ClosedShape(Ellipse(Vector(16.0, 8.0)), Fill Brushes.Red)
+                          yield RefSpace.At(8.0, 60.0), ClosedShape(Ellipse(Vector(8.0, 16.0)), Fill Brushes.Red) }
 
     let clip1 = clips { yield RefSpace.At(100.0, 100.0), scene1
                         yield RefSpace.At(125.0, 100.0), scene1
@@ -29,8 +29,8 @@ module SampleClips =
                  }
              |> repeat) 
 
-    let clip3 = clips { yield! clip1
-                        yield! movie2 }
+    let clip3 = clips { yield! RefSpace.Origin, clip1
+                        yield! RefSpace.Origin, movie2 }
 
     let movie3 =
         clip3
@@ -64,7 +64,7 @@ module SampleClips =
                     yield RefSpace.At(50.0, -50.0), ClosedShape(Ellipse(Vector(40.0, 40.0)), Fill Brushes.Blue)
                     yield RefSpace.At(-50.0, -50.0), ClosedShape(Ellipse(Vector(80.0, 80.0)), Fill Brushes.Blue)
                     yield RefSpace.At(10.0, -20.0), Path(Bezier(Vector(0.0, 40.0), Vector(-30.0, 30.0), Vector(-15.0, 15.0)), { Pens.Red with Thickness = 5.0 }) }
-            yield! Clip(
+            yield! RefSpace.Origin, Clip(
                         RefSpace.At(0.0, 50.0),
                         lazylist { for i in 10 .. 40 do
                                    yield Frame(RefSpace.At(-50.0, 0.0), [RefSpace.Origin, Path((Bezier(Vector(100.0, 0.0), Vector(float i, float i), Vector(float (-i), float i)), { Pens.Green with Thickness = 5.0 }))]) } |> eval |> holdOnLast)
@@ -223,3 +223,67 @@ module SampleClips =
              |> followedBy (50 |> framesOf (slide (-100.0, 50.0)))
             ) |> repeat
            )
+
+    let test8 =
+        let tree =
+            shapes {
+                yield rectangle (10.0, 10.0) |> at (-5.0, -10.0) |> withFill Brushes.Maroon
+                yield [ lineTo (-20.0, 0.0)
+                        lineTo (20.0, -100.0)
+                        lineTo (20.0, 100.0)
+                        lineTo (-20.0, 0.0)
+                      ]
+                        |> toClosedPath
+                        |> at (0.0, -10.0)
+                        |> withContourAndFill ({Pens.DarkOliveGreen with Thickness = 2.0}, Brushes.DarkGreen)
+            }
+
+        let hero =
+            let arm =
+                shapes {
+                    yield rectangle (1.5, 4.0) |> at (-0.75, 0.0) |> withFill Brushes.Red
+                    yield ellipse (1.5, 1.5) |> at (0.0, 4.5) |> withZ (-0.1) |> withFill Brushes.LightPink
+                }
+            shapes {
+                yield rectangle (10.0, 10.0) |> at (-5.0, -15.0) |> withFill Brushes.Red
+                yield rectangle (2.0, 5.0) |> at (-5.0, -5.0) |> withFill Brushes.Red
+                yield rectangle (2.0, 5.0) |> at (3.0, -5.0) |> withFill Brushes.Red
+                yield! arm |> at (4.5, -14.0) |> rotatedBy (-Pi / 6.0)
+                yield! arm |> at (-4.5, -14.0) |> rotatedBy (Pi / 6.0)
+                yield ellipse (8.0, 8.0) |> at (0.0, -19.0) |> withFill Brushes.LightPink
+            }
+
+        let forest =
+            clips {
+                yield tree |> at (-50.0, 4.0) |> scaledBy 0.98 |> withZ 1.0
+                yield tree |> at (-30.0, 13.0) |> scaledBy 1.1 |> withZ 2.0
+                yield tree |> at (-20.0, 4.0) |> scaledBy 0.98 |> withZ 1.0
+                yield tree |> at (0.0, 0.0) |> scaledBy 1.0 |> withZ 1.0
+                yield tree |> at (20.0, 8.0) |> scaledBy 1.05 |> withZ 2.0
+                yield tree |> at (30.0, 13.0) |> scaledBy 1.1 |> withZ 2.0
+                yield tree |> at (40.0, -4.0) |> scaledBy 0.95 |> withZ 1.0
+                yield tree |> at (60.0, 13.0) |> scaledBy 1.1 |> withZ 2.0
+                yield tree |> at (100.0, 13.0) |> scaledBy 1.1 |> withZ 2.0
+                yield tree |> at (150.0, 13.0) |> scaledBy 1.1 |> withZ 2.0
+            }
+
+        let walkingHero =
+            hero |> at (0.0, 0.0) |> Frame
+            |> transformWith (
+             (
+              (30 |> framesOf (slideWithZ (250.0, 40.0, 3.0)))
+              |> followedBy ((30 |> framesOf (slideWithZ (250.0, -20.0, -1.5))))
+              |> followedBy ((30 |> framesOf (slideWithZ (-250.0, -20.0, -1.5))))
+              |> followedBy ((20 |> framesOf (slideWithZ (-150.0, -10.0, -1.0))))
+              |> followedBy ((10 |> framesOf (slideWithZ (-100.0, 10.0, 1.0))))
+             ) |> repeat
+            )
+
+        clips {
+            yield! forest |> at (-150.0, -60.0) |> withZ -10.0 |> scaledBy 0.9
+            yield! forest |> at origin
+            yield! forest |> at (150.0, -50.0) |> withZ -5.0 |> scaledBy 0.95
+            yield! forest |> at (-200.0, 50.0) |> withZ 5.0 |> scaledBy 1.05
+            yield! walkingHero |> at (-220.0, 0.0)
+        }
+

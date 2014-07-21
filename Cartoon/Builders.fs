@@ -12,14 +12,14 @@ module Builders =
     type ShapesBuilder() =
         member x.Zero() = []
         member x.Yield(shape:RefSpace * Shape) = [shape]
-        member x.YieldFrom(shapes:Shapes) = shapes
+        member x.YieldFrom(space:RefSpace, shapes:Shapes) = shapes |> List.map (fun (refSpace, shape) -> space + refSpace, shape)
         member x.Delay(f) = f()
         member x.Combine(f1, f2) = f1 @ f2
 
     type ClipsBuilder() =
         member x.Zero() = Frame(RefSpace.Origin, [])
         member x.Yield(space:RefSpace, shapes:Shapes) = Frame(space, shapes)
-        member x.YieldFrom(c:Clip) = c
+        member x.YieldFrom(space:RefSpace, c:Clip) = Clips(space, [c])
         member x.Delay(f) = f()
         member x.Combine(c1, c2) = combineClips c1 c2
 

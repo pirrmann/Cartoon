@@ -21,18 +21,21 @@ module Dsl =
     let at (x, y) element = RefSpace.At(x, y), element
     let withZ z (refSpace, element) = { refSpace with z = z }, element
     let rotatedBy alpha (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.rotate alpha) * refSpace.transform}, element)
+    let scaledBy ratio (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.scale ratio) * refSpace.transform}, element)
     let origin = (0.0, 0.0)
 
     let Pi = System.Math.PI
 
     open LazyList
 
-    let slide (x, y) frames =
+    let slideWithZ (x, y, z) frames =
         lazylist {
             for i in 0..frames-1 do
             let ratio = float  i / float frames
-            yield { transform = Transforms.translate (x * ratio, y * ratio); z = 0.0 }
+            yield { transform = Transforms.translate (x * ratio, y * ratio); z = z * ratio }
         }
+
+    let slide (x, y) = slideWithZ (x, y, 0.0)
 
     let framesOf generator frames =
         generator frames
