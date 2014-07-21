@@ -273,17 +273,44 @@ module SampleClips =
              (
               (30 |> framesOf (slideWithZ (250.0, 40.0, 3.0)))
               |> followedBy ((30 |> framesOf (slideWithZ (250.0, -20.0, -1.5))))
-              |> followedBy ((30 |> framesOf (slideWithZ (-250.0, -20.0, -1.5))))
+              |> followedBy ((12 |> framesOf (slideWithZ (-10.0, -30.0, 0.0))))
+              |> followedBy ((30 |> framesOf (slideWithZ (-240.0, -20.0, -1.5))))
               |> followedBy ((20 |> framesOf (slideWithZ (-150.0, -10.0, -1.0))))
-              |> followedBy ((10 |> framesOf (slideWithZ (-100.0, 10.0, 1.0))))
+              |> followedBy ((15 |> framesOf (slideWithZ (-100.0, 10.0, 1.0))))
+              |> followedBy ((12 |> framesOf (slideWithZ (-10.0, 30.0, 0.0))))
              ) |> repeat
             )
 
+        let background =
+            shapes {
+                yield [ lineTo (640.0, 0.0)
+                        lineTo (0.0, 190.0)
+                        bezierTo (-640.0, -50.0) (-100.0, 0.0) (100.0, 0.0)
+                        lineTo (0.0, -140.0) ] |> toClosedPath |> at (-320.0, -240.0) |> withFill Brushes.SkyBlue
+                yield [ bezierTo (640.0, 50.0) (100.0, 0.0) (-100.0, 0.0)
+                        lineTo (0.0, 110.0)
+                        bezierTo (-320.0, -40.0) (-80.0, 0.0) (100.0, 0.0)
+                        bezierTo (-320.0, -30.0) (-80.0, 0.0) (100.0, 0.0)
+                        lineTo (0.0, -90.0) ] |> toClosedPath |> at (-320.0, -100.0) |> withFill Brushes.LightGreen
+                yield [ bezierTo (320.0, 30.0) (100.0, 0.0) (-80.0, 0.0)
+                        bezierTo (320.0, 40.0) (100.0, 0.0) (-80.0, 0.0)
+                        lineTo (0.0, 40.0)
+                        bezierTo (-320.0, -40.0) (-80.0, 0.0) (100.0, 0.0)
+                        bezierTo (-320.0, -30.0) (-80.0, 0.0) (100.0, 0.0)
+                        lineTo (0.0, -40.0) ] |> toClosedPath |> at (-320.0, -10.0) |> withFill Brushes.SandyBrown
+                yield [ bezierTo (320.0, 30.0) (100.0, 0.0) (-80.0, 0.0)
+                        bezierTo (320.0, 40.0) (100.0, 0.0) (-80.0, 0.0)
+                        lineTo (0.0, 150.0)
+                        lineTo (-640.0, 0.0)
+                        lineTo (0.0, -210.0) ] |> toClosedPath |> at (-320.0, 30.0) |> withFill Brushes.LightGreen
+            }
+
         clips {
+            yield background |> at origin |> withZ -512.0
             yield! forest |> at (-150.0, -60.0) |> withZ -10.0 |> scaledBy 0.9
             yield! forest |> at origin
             yield! forest |> at (150.0, -50.0) |> withZ -5.0 |> scaledBy 0.95
-            yield! forest |> at (-200.0, 50.0) |> withZ 5.0 |> scaledBy 1.05
-            yield! walkingHero |> at (-220.0, 0.0)
+            yield! forest |> at (-220.0, 100.0) |> withZ 5.0 |> scaledBy 1.05
+            yield! walkingHero |> at (-220.0, 5.0)
         }
 
