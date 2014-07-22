@@ -50,7 +50,12 @@ module RuntimeImplementation =
         let s = context.Request.Url.LocalPath 
 
         // Handle an ordinary file request
-        let file = root + (if s = "/" then "/index.html" else s)
+        let file =
+            root + 
+            match s with 
+            | "/" -> "/index.html"
+            | _ when s.StartsWith("/Resources/") -> "\\..\\" + s.Substring(11)
+            | _ -> s
         if File.Exists(file) then 
           let ext = Path.GetExtension(file).ToLower()
           let typ = contentTypes.[ext]

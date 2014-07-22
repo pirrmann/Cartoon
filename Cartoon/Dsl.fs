@@ -14,14 +14,23 @@ module Dsl =
     let toPath = CompositePath
     let toClosedPath = CompositePath >> ClosedPath
     let withHole hole shape = HollowShape(shape, hole)
+
+    let resource = Resource
+    let image (width, height) resource = Image(Vector(width, height), resource)
+
     let withContour pen (space, shape) = space, ClosedShape(shape, Contour(pen))
     let withFill brush (space, shape) = space, ClosedShape(shape, Fill(brush))
     let withContourAndFill (pen, brush) (space, shape) = space, ClosedShape(shape, ContourAndFill(pen, brush))
     let withPen pen (space, path) = space, Path(path, pen)
+
+    let transform matrix refSpace = RefSpace.Transform(matrix) + refSpace
+
     let at (x, y) element = RefSpace.At(x, y), element
     let withZ z (refSpace, element) = { refSpace with z = z }, element
     let rotatedBy alpha (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.rotate alpha) * refSpace.transform}, element)
     let scaledBy ratio (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.scale ratio) * refSpace.transform}, element)
+    let xFlipped (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.scaleX -1.0) * refSpace.transform}, element)
+    let yFlipped (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.scaleY -1.0) * refSpace.transform}, element)
     let origin = (0.0, 0.0)
 
     let Pi = System.Math.PI
@@ -37,6 +46,8 @@ module Dsl =
 
     let slide (x, y) = slideWithZ (x, y, 0.0)
 
+    let whileApplying t = LazyList.map (transform t)
+
     let framesOf generator frames =
         generator frames
 
@@ -44,6 +55,6 @@ module Dsl =
         let t1' = LazyList.eval t1
         let t2' =
             match t1' |> LazyList.last with
-            | Some (l:RefSpace) -> lazy (LazyList.eval t2 |> LazyList.map ((+) l))
+            | Some (l:RefSpace) -> t2 |> LazyList.map ((+) l)
             | None -> t2
         LazyList.LazyConcat(t1', t2'))

@@ -27,6 +27,10 @@ module Transforms =
     let rotate alpha = TransformMatrix((cos alpha, sin alpha), (-sin alpha, cos alpha), (0.0, 0.0))
     let translate (x, y) = TransformMatrix((1.0, 0.0), (0.0, 1.0), (x, y))
     let scale ratio = TransformMatrix((ratio, 0.0), (0.0, ratio), (0.0, 0.0))
+    let scaleX ratio = TransformMatrix((ratio, 0.0), (0.0, 1.0), (0.0, 0.0))
+    let scaleY ratio = TransformMatrix((1.0, 0.0), (0.0, ratio), (0.0, 0.0))
+    let flipX = scaleX (-1.0)
+    let flipY = scaleY (-1.0)
 
 [<ReflectedDefinition>]
 type RefSpace = { transform:TransformMatrix; z:float } with
@@ -72,7 +76,11 @@ type DrawType =
          member x.Brush = match x with | Fill(b) | ContourAndFill(_, b) -> Some b | _ -> None
 
 [<ReflectedDefinition>]
+type Resource = Resource of string
+
+[<ReflectedDefinition>]
 type Shape =
     | ClosedShape of ClosedShape * DrawType
     | Path of Path * Pen
+    | Image of Size:Vector * Resource
 and Shapes = (RefSpace * Shape) list

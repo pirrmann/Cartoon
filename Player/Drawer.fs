@@ -14,6 +14,8 @@ let toSystemBrush (brush:Brush) =
 let toSystemTransform (TransformMatrix((m11, m12), (m21, m22), (dx, dy))) =
     new System.Drawing.Drawing2D.Matrix(float32 m11, float32 m12, float32 m21, float32 m22, float32 dx, float32 dy)
 
+let getRelativeFilePath (Resource(fileName)) = fileName
+
 open System.Drawing
 open System.Drawing.Drawing2D
 
@@ -88,6 +90,10 @@ let drawShape (graphics:Graphics) (space:RefSpace, shape:Shape) =
         let graphicsPath = path |> toSystemPath 
         use pen = pen |> toSystemPen
         graphics.DrawPath(pen, graphicsPath)
+    | Image(Vector(width, height), resource) ->
+        let filepath = getRelativeFilePath resource
+        use image = Image.FromFile(filepath)
+        graphics.DrawImage(image, new RectangleF(0.0f, 0.0f, width |> float32, height |> float32))
 
     graphics.ResetTransform()
 

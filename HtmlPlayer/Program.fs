@@ -16,6 +16,8 @@ let toCanvasColor (color:Color) =
     + ([color.R; color.G; color.B] |> List.map to255color |> String.concat ",")
     + ")"
 
+let getRelativeFilePath (Resource(fileName)) = "/Resources/" + fileName
+
 let setBrush (brush:Brush) (ctx:CanvasRenderingContext2D) =
     ctx.fillStyle <- brush.Color |> toCanvasColor
     ctx.globalAlpha <- brush.Color.Alpha
@@ -157,6 +159,10 @@ let drawShape (ctx:CanvasRenderingContext2D) (space:RefSpace, shape:Shape) =
         buildPath path |> walk ctx 
         ctx.stroke()
         ctx.restore()
+    | Image(Vector(width, height), resource) ->
+        let img = Globals.document.createElement("img")
+        img.setAttribute("src", getRelativeFilePath resource)
+        ctx.drawImage(img, 0.0, 0.0, width, height)
 
 let draw (ctx:CanvasRenderingContext2D) (space, frame) =
     ctx.setTransform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)

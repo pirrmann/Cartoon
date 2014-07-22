@@ -250,21 +250,21 @@ module SampleClips =
                 yield rectangle (2.0, 5.0) |> at (3.0, -5.0) |> withFill Brushes.Red
                 yield! arm |> at (4.5, -14.0) |> rotatedBy (-Pi / 6.0)
                 yield! arm |> at (-4.5, -14.0) |> rotatedBy (Pi / 6.0)
-                yield ellipse (8.0, 8.0) |> at (0.0, -19.0) |> withFill Brushes.LightPink
+                yield resource "guybrush.png" |> image (52.0, 47.0) |> at (-4.0, -23.0) |> scaledBy 0.2
             }
 
         let forest =
             clips {
-                yield tree |> at (-50.0, 4.0) |> scaledBy 0.98 |> withZ 1.0
-                yield tree |> at (-30.0, 13.0) |> scaledBy 1.1 |> withZ 2.0
-                yield tree |> at (-20.0, 4.0) |> scaledBy 0.98 |> withZ 1.0
-                yield tree |> at (0.0, 0.0) |> scaledBy 1.0 |> withZ 1.0
-                yield tree |> at (20.0, 8.0) |> scaledBy 1.05 |> withZ 2.0
-                yield tree |> at (30.0, 13.0) |> scaledBy 1.1 |> withZ 2.0
-                yield tree |> at (40.0, -4.0) |> scaledBy 0.95 |> withZ 1.0
-                yield tree |> at (60.0, 13.0) |> scaledBy 1.1 |> withZ 2.0
-                yield tree |> at (100.0, 13.0) |> scaledBy 1.1 |> withZ 2.0
-                yield tree |> at (150.0, 13.0) |> scaledBy 1.1 |> withZ 2.0
+                yield tree |> at (-50.0, 4.0) |> scaledBy 0.98 |> withZ 1.00
+                yield tree |> at (-30.0, 13.0) |> scaledBy 1.1 |> withZ 2.00
+                yield tree |> at (-20.0, 4.0) |> scaledBy 0.98 |> withZ 1.01
+                yield tree |> at (0.0, 0.0) |> scaledBy 1.0 |> withZ 1.02
+                yield tree |> at (20.0, 8.0) |> scaledBy 1.05 |> withZ 2.01
+                yield tree |> at (30.0, 13.0) |> scaledBy 1.1 |> withZ 2.02
+                yield tree |> at (40.0, -4.0) |> scaledBy 0.95 |> withZ 1.03
+                yield tree |> at (60.0, 13.0) |> scaledBy 1.1 |> withZ 2.03
+                yield tree |> at (100.0, 13.0) |> scaledBy 1.1 |> withZ 2.04
+                yield tree |> at (150.0, 13.0) |> scaledBy 1.1 |> withZ 2.05
             }
 
         let walkingHero =
@@ -273,11 +273,11 @@ module SampleClips =
              (
               (30 |> framesOf (slideWithZ (250.0, 40.0, 3.0)))
               |> followedBy ((30 |> framesOf (slideWithZ (250.0, -20.0, -1.5))))
-              |> followedBy ((12 |> framesOf (slideWithZ (-10.0, -30.0, 0.0))))
-              |> followedBy ((30 |> framesOf (slideWithZ (-240.0, -20.0, -1.5))))
-              |> followedBy ((20 |> framesOf (slideWithZ (-150.0, -10.0, -1.0))))
-              |> followedBy ((15 |> framesOf (slideWithZ (-100.0, 10.0, 1.0))))
-              |> followedBy ((12 |> framesOf (slideWithZ (-10.0, 30.0, 0.0))))
+              |> followedBy ((12 |> framesOf (slideWithZ (10.0, -30.0, 0.0) >> whileApplying Transforms.flipX)))
+              |> followedBy ((30 |> framesOf (slideWithZ (240.0, -20.0, -1.5))))
+              |> followedBy ((20 |> framesOf (slideWithZ (150.0, -10.0, -1.0))))
+              |> followedBy ((15 |> framesOf (slideWithZ (100.0, 10.0, 1.0))))
+              |> followedBy ((12 |> framesOf (slideWithZ (10.0, 30.0, 0.0))))
              ) |> repeat
             )
 

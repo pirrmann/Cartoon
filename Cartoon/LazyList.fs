@@ -20,12 +20,13 @@ type LazyList<'T> =
 
 [<ReflectedDefinition>]
 module LazyList =
+    let eval (x:Lazy<'T>) = x.Value
 
-    let rec map f (ll:LazyList<'a>) =
-        match ll.Head with
+    let rec map f (ll:Lazy<LazyList<'a>>) = lazy (
+        match (eval ll).Head with
         | None -> Empty
         | Some(head, tail) ->
-            LazyCons(f head, lazy map f (tail.Value))
+            LazyCons(f head, map f tail))
 
     let rec choose f (ll:LazyList<'a>) =
         match ll.Head with
@@ -42,8 +43,6 @@ module LazyList =
             | Some(head, tail) ->
                 yield head
                 yield! tail.Value |> toSeq }
-
-    let eval (x:Lazy<'T>) = x.Value
 
     let rec repeat loop = lazy LazyConcat(eval loop, repeat loop)
 
