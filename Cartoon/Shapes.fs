@@ -24,6 +24,7 @@ type TransformMatrix =
 
 [<ReflectedDefinition>]
 module Transforms =
+    let id = TransformMatrix((1.0, 0.0), (0.0, 1.0), (0.0, 0.0))
     let rotate alpha = TransformMatrix((cos alpha, sin alpha), (-sin alpha, cos alpha), (0.0, 0.0))
     let translate (x, y) = TransformMatrix((1.0, 0.0), (0.0, 1.0), (x, y))
     let scale ratio = TransformMatrix((ratio, 0.0), (0.0, ratio), (0.0, 0.0))

@@ -217,10 +217,10 @@ module SampleClips =
         } |> at (-100.0, -100.0) |> Frame
         |> transformWith (
             (
-             (25 |> framesOf (slide (50.0, 50.0)))
-             |> followedBy (50 |> framesOf (slide (-50.0, -50.0)))
-             |> followedBy (25 |> framesOf (slide (100.0, -50.0)))
-             |> followedBy (50 |> framesOf (slide (-100.0, 50.0)))
+             (25 |> framesOf (slide (0.0, 0.0) (50.0, 50.0)))
+             |> followedBy (50 |> framesOf (slide (50.0, 50.0) (0.0, 0.0)))
+             |> followedBy (25 |> framesOf (slide (0.0, 0.0) (100.0, -50.0)))
+             |> followedBy (50 |> framesOf (slide (100.0, -50.0) (0.0, 0.0)))
             ) |> repeat
            )
 
@@ -270,14 +270,25 @@ module SampleClips =
         let walkingHero =
             hero |> at (0.0, 0.0) |> Frame
             |> transformWith (
+             transforms {
+                yield! 60 |> framesOf (apply Transforms.id)
+                yield! 83 |> framesOf (apply Transforms.flipX)
+             } |> repeat
+            )
+            |> transformWith (
+             transforms {
+                yield! 143 |> framesOf (applyi (fun i -> Transforms.translate(0.0, 2.0 * cos (float i * Pi / 2.0))))
+             } |> repeat
+            )
+            |> transformWith (
              (
-              (30 |> framesOf (slideWithZ (250.0, 40.0, 3.0)))
-              |> followedBy ((30 |> framesOf (slideWithZ (250.0, -20.0, -1.5))))
-              |> followedBy ((12 |> framesOf (slideWithZ (10.0, -30.0, 0.0) >> whileApplying Transforms.flipX)))
-              |> followedBy ((30 |> framesOf (slideWithZ (240.0, -20.0, -1.5))))
-              |> followedBy ((20 |> framesOf (slideWithZ (150.0, -10.0, -1.0))))
-              |> followedBy ((15 |> framesOf (slideWithZ (100.0, 10.0, 1.0))))
-              |> followedBy ((12 |> framesOf (slideWithZ (10.0, 30.0, 0.0))))
+              (30 |> framesOf (slideWithZ (0.0, 0.0, 0.0) (250.0, 40.0, 3.0)))
+              |> followedBy ((30 |> framesOf (slideWithZ (250.0, 40.0, 3.0) (500.0, 20.0, 1.5))))
+              |> followedBy ((12 |> framesOf (slideWithZ (500.0, 20.0, 1.5) (490.0, -10.0, 1.5))))
+              |> followedBy ((30 |> framesOf (slideWithZ (490.0, -10.0, 1.5) (250.0, -30.0, 0.0))))
+              |> followedBy ((20 |> framesOf (slideWithZ (250.0, -30.0, 0.0) (110.0, -20.0, -1.0))))
+              |> followedBy ((15 |> framesOf (slideWithZ (110.0, -10.0, -1.0) (20.0, -10.0, 0.0))))
+              |> followedBy ((6 |> framesOf (slideWithZ (20.0, -10.0, 0.0) (0.0, 0.0, 0.0))))
              ) |> repeat
             )
 

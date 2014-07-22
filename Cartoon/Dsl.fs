@@ -37,16 +37,28 @@ module Dsl =
 
     open LazyList
 
-    let slideWithZ (x, y, z) frames =
+    let transforms = lazylist
+
+    let apply transform frames = 
+        lazylist {
+            for i in 0..frames-1 do
+            yield { transform = transform; z = 0.0 }
+        }
+
+    let applyi f frames = 
+        lazylist {
+            for i in 0..frames-1 do
+            yield { transform = f i; z = 0.0 }
+        }
+
+    let slideWithZ (x1, y1, z1) (x2, y2, z2) frames =
         lazylist {
             for i in 0..frames-1 do
             let ratio = float  i / float frames
-            yield { transform = Transforms.translate (x * ratio, y * ratio); z = z * ratio }
+            yield { transform = Transforms.translate ((x2 - x1) * ratio, (y2 - y1) * ratio); z = (z2 - z1) * ratio }
         }
 
-    let slide (x, y) = slideWithZ (x, y, 0.0)
-
-    let whileApplying t = LazyList.map (transform t)
+    let slide (x1, y1) (x2, y2) = slideWithZ (x1, y1, 0.0) (x2, y2, 0.0)
 
     let framesOf generator frames =
         generator frames
