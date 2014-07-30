@@ -6,7 +6,7 @@ module Dsl =
     let rectangle (width, height) = ClosedShape.Rectangle(Vector(width, height))
     let square (width) = ClosedShape.Rectangle(Vector(width, width))
     let ellipse (width, height) = ClosedShape.Ellipse(Vector(width, height))
-    let circle (radius) = ClosedShape.Ellipse(Vector(radius, radius))
+    let circle (radius) = ClosedShape.Ellipse(Vector(radius * 2.0, radius * 2.0))
     let line (x1, y1) (x2, y2) = RefSpace.At(x1, y1), Line(Vector(x2 - x1, y2 - y1))
     let bezier (x1, y1) (x2, y2) (tx1, ty1) (tx2, ty2) = RefSpace.At(x1, y1), Bezier(Vector(x2 - x1, y2 - y1), Vector(tx1, ty1), Vector(tx2, ty2))
     let lineTo (x, y) = Line(Vector(x, y))
@@ -32,6 +32,8 @@ module Dsl =
     let xFlipped (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.scaleX -1.0) * refSpace.transform}, element)
     let yFlipped (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.scaleY -1.0) * refSpace.transform}, element)
     let origin = (0.0, 0.0)
+
+    let placedMap f (r, s) = r, f(s)
 
     let Pi = System.Math.PI
 
@@ -70,3 +72,5 @@ module Dsl =
             | Some (l:RefSpace) -> t2 |> LazyList.map ((+) l)
             | None -> t2
         LazyList.LazyConcat(t1', t2'))
+
+    let Kappa = 0.5522848

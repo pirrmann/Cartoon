@@ -10,8 +10,11 @@ module internal Combine =
         } |> Seq.toList
 
 [<ReflectedDefinition>]
+type PlacedShapes = RefSpace * Shapes
+
+[<ReflectedDefinition>]
 type Clip =
-    | Frame of RefSpace * Shapes
+    | Frame of PlacedShapes
     | Clip of RefSpace * LazyList<Clip>
     | Clips of RefSpace * Clip list
     | Transformation of LazyList<RefSpace> * Clip with

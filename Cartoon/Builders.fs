@@ -22,6 +22,7 @@ module Builders =
         member x.YieldFrom(space:RefSpace, c:Clip) = Clips(space, [c])
         member x.Delay(f) = f()
         member x.Combine(c1, c2) = combineClips c1 c2
+        member x.For(s, f:(RefSpace * Shapes) -> Clip) = s |> Seq.map f |> Seq.reduce combineClips
 
     let shapes = new ShapesBuilder()
     let clips = new ClipsBuilder()

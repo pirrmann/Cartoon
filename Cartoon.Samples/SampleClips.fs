@@ -325,3 +325,22 @@ module SampleClips =
             yield! walkingHero |> at (-220.0, 5.0)
         }
 
+    open BodyParts
+
+    let test9 =
+        let head = {
+            Skull = skull
+            Eyes = eye |> at (-0.03, -0.03), eye |> at (0.03, -0.03)
+            Nose = nose |> at (0.0, 0.0);
+            Mouth = mouth |> at (0.0, 0.04);
+            Accessories =
+                [
+                    hair |> at (0.0, -0.105) |> withZ 0.02
+                    glasses |> at (0.0, -0.03) |> withZ 0.025
+                    mustach |> at (0.0, 0.025) |> withZ 0.005
+                ]
+        }
+
+        clips {
+            yield! head.ToClip() |> at origin |> scaledBy 500.0
+        }
