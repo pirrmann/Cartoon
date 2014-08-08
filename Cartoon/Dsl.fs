@@ -29,6 +29,8 @@ module Dsl =
     let withZ z (refSpace, element) = { refSpace with z = z }, element
     let rotatedBy alpha (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.rotate alpha) * refSpace.transform}, element)
     let scaledBy ratio (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.scale ratio) * refSpace.transform}, element)
+    let scaledByX ratio (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.scaleX ratio) * refSpace.transform}, element)
+    let scaledByY ratio (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.scaleY ratio) * refSpace.transform}, element)
     let xFlipped (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.scaleX -1.0) * refSpace.transform}, element)
     let yFlipped (refSpace:RefSpace, element) = ({refSpace with transform = (Transforms.scaleY -1.0) * refSpace.transform}, element)
     let origin = (0.0, 0.0)
@@ -62,8 +64,8 @@ module Dsl =
 
     let slide (x1, y1) (x2, y2) = slideWithZ (x1, y1, 0.0) (x2, y2, 0.0)
 
-    let framesOf generator frames =
-        generator frames
+    let framesOf generator framesCount =
+        generator framesCount
 
     let followedBy t2 t1 = lazy (
         let t1' = LazyList.eval t1

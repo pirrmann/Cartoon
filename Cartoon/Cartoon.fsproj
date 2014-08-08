@@ -45,6 +45,7 @@
     <Compile Include="Shapes.fs" />
     <None Include="ColorsGenerator.fsx" />
     <Compile Include="Colors.fs" />
+    <Compile Include="Animations.fs" />
     <Compile Include="Cartoon.fs" />
     <Compile Include="Player.fs" />
     <Compile Include="Builders.fs" />

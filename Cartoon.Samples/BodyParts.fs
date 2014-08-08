@@ -31,30 +31,28 @@ module BodyParts =
                 |> toClosedPath |> at origin |> withFill Brushes.Maroon
     }
 
-    let skull = clips {
-        yield shapes {
-            yield ellipse (0.14, 0.20) |> at origin |> withFill Brushes.LightPink
-            } |> at origin
-        }
+    let skull = shapes {
+        yield ellipse (0.14, 0.20) |> at origin |> withFill Brushes.LightPink
+    }
 
-    let eye = {
+    let eye skinColor = {
+        SkinColor = skinColor
+        OuterPath = ellipse (0.03, 0.015)
         Cornea = shapes { yield ellipse (0.03, 0.015) |> at origin |> withFill Brushes.White }
         Iris = shapes { yield circle 0.006 |> at origin |> withFill Brushes.Cyan } |> at origin
         Pupil = shapes { yield circle 0.002 |> at origin |> withFill Brushes.Black } |> at origin
     }
 
-    let nose = clips {
-        yield shapes {
-            yield [ bezierTo (0.0, 0.03) (-0.02, 0.03) (0.0, 0.0) ]
-                    |> toPath |> at (0.0, -0.015) |> withZ 0.01 |> withPen { Pens.Black with Thickness = 0.002 }
-        } |> at origin
+    let nose = shapes {
+        yield [ bezierTo (0.0, 0.03) (-0.02, 0.03) (0.0, 0.0) ]
+                |> toPath |> at (0.0, -0.015) |> withZ 0.01 |> withPen { Pens.Black with Thickness = 0.002 }
     }
 
-    let mouth = clips {
-        yield shapes {
+    let mouth = {
+        Lips = shapes {
             yield [ bezierTo (0.04, 0.0) (0.0, 0.0) (0.0, 0.0)
                     bezierTo (-0.04, 0.0) (-0.01, 0.01) (0.01, 0.01) ]
                     |> toClosedPath |> at (-0.02, 0.0) |> withZ 0.001 |> withFill Brushes.PaleVioletRed
-        } |> at origin
+        }
     }
 

@@ -326,11 +326,14 @@ module SampleClips =
         }
 
     open BodyParts
+    open BodyDsl
 
     let test9 =
+        let skinColor = Colors.LightPink
         let head = {
+            SkinColor = skinColor
             Skull = skull
-            Eyes = eye |> at (-0.03, -0.03), eye |> at (0.03, -0.03)
+            Eyes = eye skinColor |> at (-0.03, -0.03), eye skinColor |> at (0.03, -0.03)
             Nose = nose |> at (0.0, 0.0);
             Mouth = mouth |> at (0.0, 0.04);
             Accessories =
@@ -342,5 +345,14 @@ module SampleClips =
         }
 
         clips {
-            yield! head.ToClip() |> at origin |> scaledBy 500.0
+            yield!
+                head
+                |> animateWith (
+                   [
+                    smile 0 5
+                    blinkLeft 0 10
+                    blinkRight 10 10
+                    blink 15 10
+                   ] |> parseScript |> LazyList.repeat |> LazyList.eval )
+                |> at origin |> scaledBy 500.0
         }

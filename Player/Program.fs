@@ -4,7 +4,7 @@ open System.Windows.Forms
 
 open Drawer
 
-let cartoon = FCartoon.SampleClips.test8
+let cartoon = FCartoon.SampleClips.test9
 
 [<EntryPoint>]
 [<STAThread>]
@@ -39,6 +39,11 @@ let main argv =
         startPlaying()
 
     restartButton.Click.AddHandler(new EventHandler(onRestartClick))
+
+    let onClosingWindow (o:Object) (e:EventArgs) =
+        Async.CancelDefaultToken()
+
+    w.Closing.AddHandler(new ComponentModel.CancelEventHandler(onClosingWindow))
 
     startPlaying()
     Application.Run(w)
