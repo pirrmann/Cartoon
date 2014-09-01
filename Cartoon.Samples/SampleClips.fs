@@ -332,14 +332,15 @@ module SampleClips =
         let skinColor = Colors.LightPink
         let head = {
             SkinColor = skinColor
-            Skull = skull
-            Eyes = eye skinColor |> at (-0.03, -0.03), eye skinColor |> at (0.03, -0.03)
+            Skull = skull skinColor
+            Eyes = eye skinColor Colors.LightSeaGreen |> at (-0.03, -0.03), eye skinColor Colors.LightSeaGreen |> at (0.03, -0.03)
             Nose = nose |> at (0.0, 0.0);
             Mouth = mouth |> at (0.0, 0.04);
             Accessories =
                 [
                     hair |> at (0.0, -0.105) |> withZ 0.02
                     glasses |> at (0.0, -0.03) |> withZ 0.025
+                    //eyepatch |> at (-0.03, -0.03) |> withZ 0.015
                     mustach |> at (0.0, 0.025) |> withZ 0.005
                 ]
         }
@@ -350,9 +351,9 @@ module SampleClips =
                 |> animateWith (
                    [
                     smile 0 5
-                    blinkLeft 0 10
-                    blinkRight 10 10
-                    blink 15 10
+                    blinkLeft 0 30
+                    blinkRight 30 30
+                    blink 60 10
                    ] |> parseScript |> LazyList.repeat |> LazyList.eval )
-                |> at origin |> scaledBy 500.0
+                |> at origin |> scaledBy 1000.0
         }

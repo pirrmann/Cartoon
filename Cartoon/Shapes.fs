@@ -49,7 +49,8 @@ type Color = { Alpha:float; R: float; G: float; B: float}
 type Pen = { Color:Color; Thickness:float }
 
 [<ReflectedDefinition>]
-type Brush = { Color:Color }
+type Brush = { Color:Color } with
+    static member FromColor(color) = { Color = color }
 
 [<ReflectedDefinition>]
 type Path =

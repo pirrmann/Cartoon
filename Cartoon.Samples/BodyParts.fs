@@ -23,6 +23,16 @@ module BodyParts =
         yield [lineTo (0.02, -0.02)] |> toPath |> at (0.05, 0.0) |> withZ (-0.01) |> withPen { Pens.Black with Thickness = 0.003 }
     }
 
+    let eyepatch = shapes {
+        yield [ bezierTo (0.02, -0.01) (0.0, 0.0) (-0.01, 0.0)
+                bezierTo (0.02, 0.01) (0.01, 0.0) (0.0, 0.0)
+                bezierTo (-0.02, 0.025) (0.0, 0.01) (0.01, 0.0)
+                bezierTo (-0.02, -0.025) (-0.01, 0.0) (0.0, 0.01) ]
+                |> toClosedPath |> at (-0.02, -0.01) |> withFill Brushes.Black
+        yield [lineTo (-0.016, -0.007)] |> toPath |> at (-0.019, -0.01) |> withZ -0.001 |> withPen { Pens.Black with Thickness = 0.003 }
+        yield [lineTo (0.076, -0.007)] |> toPath |> at (0.019, -0.01) |> withZ -0.001 |> withPen { Pens.Black with Thickness = 0.003 }
+    } 
+
     let mustach = shapes {
         yield [ bezierTo (0.03, 0.02) (0.02, 0.0) (0.0, -0.01)
                 bezierTo (-0.03, -0.01) (-0.01, -0.01) (0.02, 0.0)
@@ -31,15 +41,15 @@ module BodyParts =
                 |> toClosedPath |> at origin |> withFill Brushes.Maroon
     }
 
-    let skull = shapes {
-        yield ellipse (0.14, 0.20) |> at origin |> withFill Brushes.LightPink
+    let skull skinColor = shapes {
+        yield ellipse (0.14, 0.20) |> at origin |> withFill (Brush.FromColor skinColor)
     }
 
-    let eye skinColor = {
+    let eye skinColor irisColor = {
         SkinColor = skinColor
         OuterPath = ellipse (0.03, 0.015)
         Cornea = shapes { yield ellipse (0.03, 0.015) |> at origin |> withFill Brushes.White }
-        Iris = shapes { yield circle 0.006 |> at origin |> withFill Brushes.Cyan } |> at origin
+        Iris = shapes { yield circle 0.006 |> at origin |> withFill (Brush.FromColor(irisColor)) } |> at origin
         Pupil = shapes { yield circle 0.002 |> at origin |> withFill Brushes.Black } |> at origin
     }
 
