@@ -14,6 +14,7 @@ module Animations =
         | None
         | Blink
         | Smile
+        | Talk of int
 
     type ScriptedAnimation =
         {

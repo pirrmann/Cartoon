@@ -176,7 +176,7 @@ let draw (ctx:CanvasRenderingContext2D) (space, frame) =
     (space + anchor, shape) |> drawShape ctx
 
 let main () =
-    let cartoon = SampleClips.test8
+    let cartoon = SampleClips.test9
 
     let canvas = Globals.document.getElementsByTagName_canvas().[0]
     canvas.width <- 640.

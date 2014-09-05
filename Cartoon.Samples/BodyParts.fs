@@ -6,6 +6,8 @@ module BodyParts =
     open LazyList
     open Builders
     open Dsl
+    open Animations
+    open Curves
 
     let hair = shapes {
         yield [ bezierTo (0.075, 0.075) (Kappa * 0.075, 0.0) (0.0, - Kappa * 0.075)
@@ -33,14 +35,6 @@ module BodyParts =
         yield [lineTo (0.076, -0.007)] |> toPath |> at (0.019, -0.01) |> withZ -0.001 |> withPen { Pens.Black with Thickness = 0.003 }
     } 
 
-    let mustach = shapes {
-        yield [ bezierTo (0.03, 0.02) (0.02, 0.0) (0.0, -0.01)
-                bezierTo (-0.03, -0.01) (-0.01, -0.01) (0.02, 0.0)
-                bezierTo (-0.03, 0.01) (-0.02, 0.0) (0.01, -0.01)
-                bezierTo (0.03, -0.02) (0.0, -0.01) (-0.02, 0.0) ]
-                |> toClosedPath |> at origin |> withFill Brushes.Maroon
-    }
-
     let skull skinColor = shapes {
         yield ellipse (0.14, 0.20) |> at origin |> withFill (Brush.FromColor skinColor)
     }
@@ -58,11 +52,38 @@ module BodyParts =
                 |> toPath |> at (0.0, -0.015) |> withZ 0.01 |> withPen { Pens.Black with Thickness = 0.002 }
     }
 
-    let mouth = {
-        Lips = shapes {
-            yield [ bezierTo (0.04, 0.0) (0.0, 0.0) (0.0, 0.0)
-                    bezierTo (-0.04, 0.0) (-0.01, 0.01) (0.01, 0.01) ]
-                    |> toClosedPath |> at (-0.02, 0.0) |> withZ 0.001 |> withFill Brushes.PaleVioletRed
+    let mouth =
+        let getLips (smileFactor:float) =
+            let xShift = 0.002 * smileFactor
+            let yShift = 0.007 * smileFactor
+            let upperLipLimit = 0.002 + yShift
+            let lowerLipLimit = 0.01 + yShift
+            shapes {
+                yield [ bezierTo (0.02 + xShift, upperLipLimit) (0.01, upperLipLimit) (-0.003, 0.0)
+                        bezierTo (0.02 + xShift, -upperLipLimit) (0.003, 0.0) (-0.01, upperLipLimit)
+                        bezierTo (-0.02 - xShift, lowerLipLimit) (-0.01, lowerLipLimit) (0.003, 0.0)
+                        bezierTo (-0.02 - xShift, -lowerLipLimit) (-0.003, 0.0) (0.01, lowerLipLimit) ]
+                        |> toClosedPath |> at (-0.02 - xShift, -yShift) |> withZ 0.001 |> withFill Brushes.PaleVioletRed
+            }
+        {
+            Smile = getLips
         }
-    }
 
+    let mustach =
+        let shapes smileRatio = shapes {
+            yield [ bezierTo (0.03 + smileRatio * 0.005, 0.02 - smileRatio * 0.005) (0.02, 0.0) (0.0, -0.01)
+                    bezierTo (-0.03 - smileRatio * 0.005, -0.01 + smileRatio * 0.005) (-0.01, -0.01) (0.02, 0.0)
+                    bezierTo (-0.03 - smileRatio * 0.005, 0.01 - smileRatio * 0.005) (-0.02, 0.0) (0.01, -0.01)
+                    bezierTo (0.03 + smileRatio * 0.005, -0.02 + smileRatio * 0.005) (0.0, -0.01) (-0.02, 0.0) ]
+                    |> toClosedPath |> at origin |> withFill Brushes.Maroon
+        }
+
+        let getFrame (animations:AnimationFrames) = 
+            match animations |> Seq.tryPick (fun a -> match a.Animation with | Animation.Smile -> Some a | _ -> None) with
+            | Some animation ->
+                let progress = float animation.CurrentFrame / float animation.FramesCount
+                let ratio = progress |> curve (UpFlatDown 0.7)
+                shapes ratio
+            | _ -> shapes 0.0
+
+        getFrame |> Animatable :> IAnimatable

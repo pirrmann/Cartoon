@@ -336,24 +336,38 @@ module SampleClips =
             Eyes = eye skinColor Colors.LightSeaGreen |> at (-0.03, -0.03), eye skinColor Colors.LightSeaGreen |> at (0.03, -0.03)
             Nose = nose |> at (0.0, 0.0);
             Mouth = mouth |> at (0.0, 0.04);
-            Accessories =
+            StaticAccessories =
                 [
-                    hair |> at (0.0, -0.105) |> withZ 0.02
-                    glasses |> at (0.0, -0.03) |> withZ 0.025
+                    //hair |> at (0.0, -0.105) |> withZ 0.02
+                    //glasses |> at (0.0, -0.03) |> withZ 0.025
                     //eyepatch |> at (-0.03, -0.03) |> withZ 0.015
+                ]
+            ActiveAccessories =
+                [
                     mustach |> at (0.0, 0.025) |> withZ 0.005
                 ]
         }
 
+        let pirate = {
+            Head = head |> at (0.0, -0.7)
+            Torso = shapes {
+                        yield rectangle (0.4, 0.6) |> at (-0.2, -0.6) |> withFill Brushes.Black
+                    } |> at origin
+            Legs = shapes {
+                        yield rectangle (0.4, 1.0) |> at (-0.2, 0.0) |> withFill Brushes.Red
+                    } |> at origin
+        }
+
         clips {
             yield!
-                head
+                pirate
                 |> animateWith (
                    [
-                    smile 0 5
-                    blinkLeft 0 30
-                    blinkRight 30 30
-                    blink 60 10
+                    smile 0 20
+                    (talk 8) 20 40
+                    blinkLeft 0 7
+                    blinkRight 6 7
+                    blink 18 7
                    ] |> parseScript |> LazyList.repeat |> LazyList.eval )
-                |> at origin |> scaledBy 1000.0
+                |> at (0.0, 0.0) |> scaledBy 200.0
         }

@@ -21,6 +21,12 @@ type TransformMatrix =
                   TransformMatrix((m11 * n11 + m12 * n21, m11 * n12 + m12 * n22),
                                   (m21 * n11 + m22 * n21, m21 * n12 + m22 * n22),
                                   (mx * n11 + my * n21 + nx, mx * n12 + my * n22 + ny))
+            static member (*) (x, ratio) =
+                match x with
+                | TransformMatrix((m11, m12), (m21, m22), (mx, my)) ->
+                    TransformMatrix(((m11 - 1.0) * ratio + 1.0, m12 * ratio),
+                                    (m21 * ratio, (m22 - 1.0) * ratio + 1.0),
+                                    (mx * ratio, my * ratio))
 
 [<ReflectedDefinition>]
 module Transforms =
@@ -39,6 +45,7 @@ type RefSpace = { transform:TransformMatrix; z:float } with
     static member At(x, y) = { transform = Transforms.translate (x, y); z = 0.0 }
     static member Transform(transform) = { transform = transform; z = 0.0 }
     static member (+) (s1, s2) = { transform = s2.transform * s1.transform; z = s1.z + s2.z }
+    static member (*) (s, ratio) = { transform = s.transform * ratio; z = s.z * ratio }
     member this.x = this.transform.x
     member this.y = this.transform.y
 

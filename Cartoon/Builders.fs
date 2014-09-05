@@ -38,7 +38,7 @@ module Builders =
         let frames =
             fullScript
             |> Seq.collect (fun s -> seq { for i in 0 .. s.FramesCount - 1 do
-                                           yield s.StartFrame + 1, { Animation = s.Animation; Target = s.Target; CurrentFrame = i; FramesCount = s.FramesCount } } )
+                                           yield s.StartFrame + i, { Animation = s.Animation; Target = s.Target; CurrentFrame = i; FramesCount = s.FramesCount } } )
             |> Seq.groupBy fst
             |> Seq.map (fun (k, v) -> k, v |> Seq.map snd |> Seq.toList)
             |> Map.ofSeq

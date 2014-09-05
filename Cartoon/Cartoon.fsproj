@@ -50,6 +50,7 @@
     <Compile Include="Player.fs" />
     <Compile Include="Builders.fs" />
     <Compile Include="Dsl.fs" />
+    <Compile Include="Curves.fs" />
     <Compile Include="Bodies.fs" />
   </ItemGroup>
   <ItemGroup>

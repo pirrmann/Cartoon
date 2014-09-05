@@ -22,6 +22,12 @@ type AnimationScript = LazyList<AnimationFrames>
 
 [<ReflectedDefinition>]
 type IAnimatable = abstract member GetFrame: AnimationFrames -> Shapes
+type Animatable =
+    | Animatable of (AnimationFrames -> Shapes)
+    interface IAnimatable with
+        member h.GetFrame(animations:AnimationFrames) =
+            match h with
+            | Animatable(frameGetter) -> animations |> frameGetter
 
 [<ReflectedDefinition>]
 type Clip =
